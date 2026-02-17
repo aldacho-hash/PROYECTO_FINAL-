@@ -61,7 +61,7 @@ public class Sistema extends javax.swing.JFrame {
         return;
     }
 
-    String query = "SELECT v.id_venta, CONCAT(c.nombre, ' ', c.apellidos) AS cliente, " +
+    String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
                    "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, v.fecha " +
                    "FROM VENTAS v " +
                    "INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente " +
@@ -106,7 +106,7 @@ public class Sistema extends javax.swing.JFrame {
         return;
     }
 
-    String query = "SELECT id_cliente, CONCAT(nombre, ' ', apellidos) AS nombre_completo, dni, correo, direccion, telefono " +
+    String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, direccion, telefono " +
                    "FROM CLIENTE " +
                    "WHERE nombre LIKE ? OR apellidos LIKE ?"; 
 
@@ -146,9 +146,9 @@ public class Sistema extends javax.swing.JFrame {
         return;
     }
 
-    String query = "SELECT id_empleado, CONCAT(nombre, ' ', apellidos) AS nombre_completo, dni, correo,fecha_nacimiento, direccion, telefono " +
+    String query = "SELECT id_empleado, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo,fecha_nacimiento, direccion, telefono " +
                    "FROM EMPLEADO " +
-                   "WHERE nombre LIKE ? OR apellidos LIKE ?";  
+                   "WHERE nombres LIKE ? OR apellidos LIKE ?";  
 
     try (Connection conn = ConexionSQLServer.getConnection(); 
          PreparedStatement ps = conn.prepareStatement(query)) {
@@ -184,8 +184,8 @@ public class Sistema extends javax.swing.JFrame {
     
     
     private void cargarEmpleadosEnTabla(DefaultTableModel tableModel) {
-    String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-    String query = "SELECT id_empleado, CONCAT(nombre, ' ', apellidos) AS nombre_completo, dni, correo, fecha_nacimiento, direccion, telefono FROM EMPLEADO";
+    String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+    String query = "SELECT id_empleado, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, fecha_nacimiento, direccion, telefono FROM EMPLEADO";
     
     try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
          PreparedStatement stmt = conn.prepareStatement(query);
@@ -211,8 +211,8 @@ public class Sistema extends javax.swing.JFrame {
 }
    
    private void cargarClientesEnTabla(DefaultTableModel tableModel) {
-    String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-    String query = "SELECT id_cliente, CONCAT(nombre, ' ', apellidos) AS nombre_completo, dni,correo, direccion, telefono FROM CLIENTE";
+    String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+    String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni,correo, direccion, telefono FROM CLIENTE";
     
     try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
          PreparedStatement stmt = conn.prepareStatement(query);
@@ -237,7 +237,7 @@ public class Sistema extends javax.swing.JFrame {
 }
    
   private void cargarVentasEnTabla(DefaultTableModel tableModel) {
-    String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
+    String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
     String query = "SELECT v.id_venta, CONCAT(c.nombre, ' ', c.apellidos) AS cliente, " +
                    "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, v.fecha " +
                    "FROM VENTAS v " +

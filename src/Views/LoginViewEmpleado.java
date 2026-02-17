@@ -28,22 +28,22 @@ public class LoginViewEmpleado extends javax.swing.JFrame {
        
     }
   
-public boolean verificarCredenciales(String usuario, String contraseña, String tipoUsuario) {
+public boolean verificarCredenciales(String usuario, String contrasena, String tipoUsuario) {
     boolean autenticado = false;
     try {
-        Connection con = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO", "lucianoadm", "hilario123");
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC", "root", "carranza15");
 
         String query = "";
         if (tipoUsuario.equals("cliente")) {
-            query = "SELECT * FROM CLIENTE WHERE  (usuario = ? OR correo) = ? AND contraseña = ?";
+            query = "SELECT * FROM cliente WHERE  (usuario = ? OR correo= ?)  AND contrasena = ?";
         } else if (tipoUsuario.equals("empleado")) {
-            query = "SELECT * FROM EMPLEADO WHERE (usuario = ? OR correo) = ? AND contraseña = ?";
+            query = "SELECT * FROM empleado WHERE (usuario = ? OR correo_electronico = ?) AND contrasena = ?";
         }
 
         PreparedStatement stmt = con.prepareStatement(query);
         stmt.setString(1, usuario);
         stmt.setString(2, usuario);
-        stmt.setString(3, contraseña);
+        stmt.setString(3, contrasena);
         ResultSet rs = stmt.executeQuery();
 
         if (rs.next()) {
@@ -220,9 +220,9 @@ public boolean verificarCredenciales(String usuario, String contraseña, String 
         @Override
         public void actionPerformed(ActionEvent e) {
             String usuario = txtUsuarioEmpleado.getText();
-            String contraseña = new String(txtContraseñaEmpleado.getPassword());
+            String contrasena = new String(txtContraseñaEmpleado.getPassword());
 
-            boolean autenticado = ConexionSQLServer.authenticateEmpleado(usuario, contraseña);
+            boolean autenticado = ConexionSQLServer.authenticateEmpleado(usuario, contrasena);
 
             if (autenticado) {
                 LoginViewEmpleado.this.setVisible(false); 
@@ -254,8 +254,8 @@ public boolean verificarCredenciales(String usuario, String contraseña, String 
     public String obtenerCargoEmpleado(String usuario) {
         String cargo = "";
         try {
-            Connection con = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO", "lucianoadm", "hilario123");
-            String query = "SELECT cargo FROM EMPLEADO WHERE usuario = ?";
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC", "root", "carranza15");
+            String query = "SELECT cargo FROM empleado WHERE usuario = ?";
             PreparedStatement stmt = con.prepareStatement(query);
             stmt.setString(1, usuario);
             ResultSet rs = stmt.executeQuery();

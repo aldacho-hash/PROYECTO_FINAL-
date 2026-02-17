@@ -1,70 +1,64 @@
 package conexiondb;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class ConexionSQLServer 
-{
-     public static Connection getConnection() 
-    {
-        try 
-        {
-            String url = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-            String user = "lucianoadm";
-            String password = "hilario123";
+public class ConexionSQLServer {
+    
+    public static Connection getConnection() {
+        try {
+            String url = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+            String user = "root";
+            String password = "carranza15";
             
             return DriverManager.getConnection(url, user, password);
-        } 
-        catch (SQLException e) {
+        } catch (SQLException e) {
             System.out.println("Error de conexión: " + e.getMessage());
             return null;
         }
     }
-    public static boolean authenticateCliente(String usuario, String contraseña) {
-    String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-    String query = "SELECT * FROM usuarios WHERE (usuario = ? OR email = ?) AND contraseña = ? AND tipo_usuario = ?";
-    try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
-         PreparedStatement stmt = conn.prepareStatement(query)) {
-
-        stmt.setString(1, usuario);
-        stmt.setString(2, usuario);
-        stmt.setString(3, contraseña);
-        stmt.setString(4, "cliente");  
-
-        ResultSet rs = stmt.executeQuery();
+    
+    public static boolean authenticateCliente(String usuario, String contrasena) {
+        String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+        String query = "SELECT * FROM cliente WHERE (usuario = ? OR correo = ?) AND contrasena = ?";
         
-        if (rs.next()) {
-            return true;
+        try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, usuario);
+            stmt.setString(2, usuario);
+            stmt.setString(3, contrasena);
+            
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error al verificar credenciales de cliente: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        System.out.println("Error al verificar las credenciales: " + e.getMessage());
+        return false;
     }
-    return false;
-}
      
-   public static boolean authenticateEmpleado(String usuario, String contraseña) {
-    String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-    String query = "SELECT * FROM usuarios WHERE (usuario = ? OR email = ?) AND contraseña = ? AND tipo_usuario = ?";
-    try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
-         PreparedStatement stmt = conn.prepareStatement(query)) {
-
-        stmt.setString(1, usuario);
-        stmt.setString(2, usuario);
-        stmt.setString(3, contraseña);
-        stmt.setString(4, "empleado"); 
-        ResultSet rs = stmt.executeQuery();
+    public static boolean authenticateEmpleado(String usuario, String contrasena) {
+        String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+        String query = "SELECT * FROM empleado WHERE (usuario = ? OR correo_electronico = ?) AND contrasena = ?";
         
-        if (rs.next()) {
-            return true;
+        try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            
+            stmt.setString(1, usuario);
+            stmt.setString(2, usuario);
+            stmt.setString(3, contrasena);
+            
+            ResultSet rs = stmt.executeQuery();
+            return rs.next();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error al verificar credenciales de empleado: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        System.out.println("Error al verificar las credenciales: " + e.getMessage());
+        return false;
     }
-    return false;
-}
 }

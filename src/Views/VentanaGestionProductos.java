@@ -195,7 +195,7 @@ public class VentanaGestionProductos extends JFrame {
     }
     
     public void cargarDatosTabla() {
-    String query = "SELECT * FROM PRODUCTO WHERE estado = 'Activo'";
+    String query = "SELECT * FROM producto WHERE activo = 1";
 
     try (Connection con = ConexionSQLServer.getConnection(); 
          PreparedStatement ps = con.prepareStatement(query); 
@@ -241,7 +241,7 @@ public class VentanaGestionProductos extends JFrame {
         return;
     }
 
-    String query = "SELECT * FROM PRODUCTO WHERE nombre LIKE ? AND estado = 'Activo'";
+    String query = "SELECT * FROM producto WHERE nombres LIKE ? AND activo = 1";
 
     try (Connection con = ConexionSQLServer.getConnection(); 
          PreparedStatement ps = con.prepareStatement(query)) {
@@ -310,7 +310,7 @@ public class VentanaGestionProductos extends JFrame {
                 }
 
                 String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-                String query = "SELECT COUNT(*) FROM PRODUCTO WHERE nombre = ?";  
+                String query = "SELECT COUNT(*) FROM producto WHERE nombre = ?";  
 
                 try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
                      PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -326,7 +326,7 @@ public class VentanaGestionProductos extends JFrame {
                         }
                     }
 
-                    String insertQuery = "INSERT INTO PRODUCTO (nombre, categoria, precio, precio_descuento, stock) "
+                    String insertQuery = "INSERT INTO producto (nombre, categoria, precio, precio_descuento, stock) "
                             + "VALUES (?, ?, ?, ?, ?)";
 
                     try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
@@ -420,7 +420,7 @@ public class VentanaGestionProductos extends JFrame {
             return;
         }
 
-        String query = "UPDATE PRODUCTO SET nombre = ?, categoria = ?, precio = ?, stock = ? WHERE nombre = ?";
+        String query = "UPDATE producto SET nombre = ?, categoria = ?, precio = ?, stock = ? WHERE nombre = ?";
 
         try (Connection con = ConexionSQLServer.getConnection(); 
              PreparedStatement ps = con.prepareStatement(query)) {
@@ -456,8 +456,8 @@ private void eliminarProducto() {
 
     Producto productoEliminar = listaProductos.get(filaSeleccionada);
 
-    String verificarUso = "SELECT COUNT(*) FROM PRODUCTOS_VENDIDOS WHERE id_producto = ?";
-    String eliminarProducto = "DELETE FROM PRODUCTO WHERE id_producto = ?";
+    String verificarUso = "SELECT COUNT(*) FROM productos_vendidos WHERE id_producto = ?";
+    String eliminarProducto = "DELETE FROM producto WHERE id_producto = ?";
 
     try (Connection con = ConexionSQLServer.getConnection()) {
 

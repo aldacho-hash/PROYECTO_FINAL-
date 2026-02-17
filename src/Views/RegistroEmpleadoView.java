@@ -20,14 +20,14 @@ public class RegistroEmpleadoView extends javax.swing.JFrame {
        
        
     }
-    private void insertarUsuario(String usuario, String contraseña, String correo) {
-        String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-        String query = "INSERT INTO usuarios (usuario, contraseña, email, tipo_usuario) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+    private void insertarUsuario(String usuario, String contrasena, String correo) {
+        String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+        String query = "INSERT INTO usuarios (nombre_usuario, contrasena_hash, email, tipo_usuario) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, usuario);
-            stmt.setString(2, contraseña);
+            stmt.setString(2, contrasena);
             stmt.setString(3, correo);
             stmt.setString(4, "empleado");
 
@@ -38,12 +38,12 @@ public class RegistroEmpleadoView extends javax.swing.JFrame {
     }
 }
     
-       private void insertarEmpleado(String nombre, String apellidos, String dni, String correo, String cargo, String tipoContrato, String fechaNacimiento, String telefono, String direccion, String usuario, String contraseña
+       private void insertarEmpleado(String nombre, String apellidos, String dni, String correo, String cargo, String tipoContrato, String fechaNacimiento, String telefono, String direccion, String usuario, String contrasena
                 ) {
-         String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-    String query = "INSERT INTO empleado (nombre, apellidos, dni, correo, cargo, tipo_contrato, fecha_nacimiento, telefono, direccion, usuario, contraseña) "
+         String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+    String query = "INSERT INTO empleado (nombres, apellidos, dni, correo_electronico, cargo, tipo_contrato, fecha_nacimiento, telefono, direccion, usuario, contrasena) "
                  + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+    try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
          PreparedStatement stmt = conn.prepareStatement(query)) {
 
         stmt.setString(1, nombre);
@@ -56,7 +56,7 @@ public class RegistroEmpleadoView extends javax.swing.JFrame {
         stmt.setString(8, telefono);
         stmt.setString(9, direccion);
         stmt.setString(10, usuario);
-        stmt.setString(11, contraseña);
+        stmt.setString(11, contrasena);
         stmt.executeUpdate();
         JOptionPane.showMessageDialog(this, "Empleado registrado exitosamente.");
     } catch (SQLException e) {
