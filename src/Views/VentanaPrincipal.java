@@ -32,7 +32,6 @@ public class VentanaPrincipal extends JFrame {
     private JButton btnCarrito;
     private List<Producto> productos;
     private int contadorCarrito = 0;
-    private JButton btnComprar;
     private List<CarritoProducto> carrito = new ArrayList<>();
     private List<CampañaDescuento> campanias = new ArrayList<>();
     private VentanaGestionProductos ventanaGestionProductos;
@@ -41,7 +40,6 @@ public class VentanaPrincipal extends JFrame {
     public VentanaPrincipal(String nombreCliente) {
         initComponents();
         this.nombreCliente = nombreCliente;
-        lblUsuario.setText("Bienvenido: " + nombreCliente);
         cargarProductosEjemplo();
         mostrarProductos("Todos los Productos");
         btnCarrito.addActionListener(e -> verCarrito());
@@ -74,14 +72,13 @@ public class VentanaPrincipal extends JFrame {
         lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 28));
         lblTitulo.setForeground(Color.WHITE);
         
-       JPanel panelBuscador = new JPanel(new BorderLayout(0, 0));
-       panelBuscador.setBackground(Color.WHITE);
+        JPanel panelBuscador = new JPanel(new BorderLayout(0, 0));
+        panelBuscador.setBackground(Color.WHITE);
         panelBuscador.setPreferredSize(new Dimension(500, 40));
         panelBuscador.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 2));
 
-
         JLabel lblLupa = new JLabel();
-            try {
+        try {
             ImageIcon iconoLupa = new ImageIcon(getClass().getResource("/Imagenes/lupa.png"));
             Image img = iconoLupa.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
             lblLupa.setIcon(new ImageIcon(img));
@@ -113,62 +110,25 @@ public class VentanaPrincipal extends JFrame {
         JPanel panelUsuario = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 0));
         panelUsuario.setBackground(new Color(200, 50, 50));
         
-        btnComprar = new JButton("Comprar");
-        btnComprar.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnComprar.setBackground(new Color(50, 150, 50));
-        btnComprar.setForeground(Color.BLACK);
-        btnComprar.setBorder(BorderFactory.createEmptyBorder());
-        btnComprar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnComprar.setFocusPainted(false);
-
-        btnComprar.addActionListener(e -> {mostrarTotalCompra();});
-        
-        
-        
         btnCarrito = new JButton("🛒 Carrito (" + contadorCarrito + ")");
         btnCarrito.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnCarrito.setForeground(Color.BLACK);
+        btnCarrito.setForeground(Color.WHITE);
         btnCarrito.setBackground(new Color(200, 50, 50));
         btnCarrito.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
         btnCarrito.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnCarrito.setFocusPainted(false);
         
-        JButton btnConfig = new JButton("⚙ Configuración");
-        btnConfig.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnConfig.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btnConfig.setBackground(new Color(230, 230, 230));
-        btnConfig.setForeground(Color.BLACK);
-        btnConfig.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        btnConfig.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnConfig.addActionListener(e -> abrirConfiguraciones());
-        
-        lblUsuario = new JLabel("👤 Mi Cuenta");
-        lblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        lblUsuario.setForeground(Color.WHITE);
-        lblUsuario.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        lblUsuario.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                String mensaje = "Usuario: " + nombreCliente + "\n¿Deseas cerrar sesión?";
-
-        int respuesta = JOptionPane.showOptionDialog(VentanaPrincipal.this, 
-            mensaje, "Mi Cuenta", 
-            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, 
-            null, new Object[] {"Cerrar Sesión","Cancelar"}, "Cancelar");
-
-        if (respuesta == JOptionPane.YES_OPTION) {
-            VentanaPrincipal.this.setVisible(false);  
-            LoginUsuarios loginFrame = new LoginUsuarios();  
-            loginFrame.setVisible(true); 
-            }       
-        }
-        });
+        JButton btnCuenta = new JButton("👤 Mi Cuenta");
+        btnCuenta.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnCuenta.setForeground(Color.WHITE);
+        btnCuenta.setBackground(new Color(200, 50, 50));
+        btnCuenta.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        btnCuenta.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnCuenta.setFocusPainted(false);
+        btnCuenta.addActionListener(e -> mostrarMenuCuenta(btnCuenta));
         
         panelUsuario.add(btnCarrito);
-        panelUsuario.add(Box.createVerticalStrut(5));
-        panelUsuario.add(lblUsuario);
-        panelUsuario.add(Box.createVerticalStrut(5)); 
-        panelUsuario.add(btnConfig);
+        panelUsuario.add(btnCuenta);
         
         panelSuperior.add(lblTitulo, BorderLayout.WEST);
         panelSuperior.add(panelBuscador, BorderLayout.CENTER);
@@ -177,17 +137,295 @@ public class VentanaPrincipal extends JFrame {
         add(panelSuperior, BorderLayout.NORTH);
     }
     
+    private void mostrarMenuCuenta(JButton btnCuenta) {
+        JPopupMenu menuCuenta = new JPopupMenu();
+        menuCuenta.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        
+        JPanel panelHeader = new JPanel();
+        panelHeader.setBackground(new Color(240, 240, 240));
+        panelHeader.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+        JLabel lblNombreUsuario = new JLabel("¡Bienvenido, " + nombreCliente + "!");
+        lblNombreUsuario.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        panelHeader.add(lblNombreUsuario);
+        menuCuenta.add(panelHeader);
+        menuCuenta.addSeparator();
+        
+        JMenuItem itemPerfil = new JMenuItem("👤  Mi Perfil");
+        itemPerfil.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        itemPerfil.addActionListener(e -> abrirPerfil());
+        menuCuenta.add(itemPerfil);
+        
+        JMenuItem itemPedidos = new JMenuItem("📦  Mis Pedidos");
+        itemPedidos.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        itemPedidos.addActionListener(e -> abrirMisPedidos());
+        menuCuenta.add(itemPedidos);
+        
+        JMenuItem itemDirecciones = new JMenuItem("📍  Mis Direcciones");
+        itemDirecciones.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        itemDirecciones.addActionListener(e -> abrirMisDirecciones());
+        menuCuenta.add(itemDirecciones);
+        
+        menuCuenta.addSeparator();
+        
+        JMenuItem itemCerrarSesion = new JMenuItem("🚪  Cerrar Sesión");
+        itemCerrarSesion.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        itemCerrarSesion.setForeground(Color.RED);
+        itemCerrarSesion.addActionListener(e -> {
+            int respuesta = JOptionPane.showConfirmDialog(this,
+                "¿Deseas cerrar sesión?",
+                "Cerrar Sesión",
+                JOptionPane.YES_NO_OPTION);
+            
+            if (respuesta == JOptionPane.YES_OPTION) {
+                this.setVisible(false);
+                LoginUsuarios loginFrame = new LoginUsuarios();
+                loginFrame.setVisible(true);
+            }
+        });
+        menuCuenta.add(itemCerrarSesion);
+        
+        menuCuenta.show(btnCuenta, 0, btnCuenta.getHeight());
+    }
+    
+    private void abrirPerfil() {
+        JFrame ventanaPerfil = new JFrame("Mi Perfil");
+        ventanaPerfil.setSize(600, 500);
+        ventanaPerfil.setLocationRelativeTo(this);
+        ventanaPerfil.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+        JPanel panelPrincipal = new JPanel(new BorderLayout(15, 15));
+        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        JPanel panelFoto = new JPanel();
+        panelFoto.setLayout(new BoxLayout(panelFoto, BoxLayout.Y_AXIS));
+        panelFoto.setBackground(Color.WHITE);
+        
+        JLabel lblFoto = new JLabel("👤");
+        lblFoto.setFont(new Font("Segoe UI", Font.PLAIN, 80));
+        lblFoto.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel lblNombre = new JLabel("Hola,");
+        lblNombre.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblNombre.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        JLabel lblUsuario = new JLabel(nombreCliente.toUpperCase() + "!");
+        lblUsuario.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblUsuario.setAlignmentX(Component.CENTER_ALIGNMENT);
+        
+        panelFoto.add(Box.createVerticalStrut(20));
+        panelFoto.add(lblFoto);
+        panelFoto.add(Box.createVerticalStrut(10));
+        panelFoto.add(lblNombre);
+        panelFoto.add(lblUsuario);
+        
+        JPanel panelDatos = new JPanel(new GridLayout(0, 2, 10, 15));
+        panelDatos.setBorder(BorderFactory.createTitledBorder("Datos personales"));
+        
+        String query = "SELECT * FROM cliente WHERE usuario = ?";
+        try (Connection con = ConexionSQLServer.getConnection();
+             PreparedStatement ps = con.prepareStatement(query)) {
+            
+            ps.setString(1, nombreCliente);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                panelDatos.add(new JLabel("Nombre:"));
+                panelDatos.add(new JLabel(rs.getString("nombres")));
+                
+                panelDatos.add(new JLabel("Apellido:"));
+                panelDatos.add(new JLabel(rs.getString("apellidos")));
+                
+                panelDatos.add(new JLabel("Email:"));
+                panelDatos.add(new JLabel(rs.getString("correo")));
+                
+                panelDatos.add(new JLabel("DNI:"));
+                panelDatos.add(new JLabel(rs.getString("dni")));
+                
+                panelDatos.add(new JLabel("Teléfono:"));
+                panelDatos.add(new JLabel(rs.getString("telefono")));
+                
+                panelDatos.add(new JLabel("Fecha de Nacimiento:"));
+                String fechaNac = rs.getString("fecha_nacimiento");
+                panelDatos.add(new JLabel(fechaNac != null ? fechaNac : "No especificado"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        panelPrincipal.add(panelFoto, BorderLayout.WEST);
+        panelPrincipal.add(panelDatos, BorderLayout.CENTER);
+        
+        ventanaPerfil.add(panelPrincipal);
+        ventanaPerfil.setVisible(true);
+    }
+    
+    private void abrirMisPedidos() {
+        JFrame ventanaPedidos = new JFrame("Mis Pedidos");
+        ventanaPedidos.setSize(800, 500);
+        ventanaPedidos.setLocationRelativeTo(this);
+        
+        String[] columnas = {"ID Pedido", "Fecha", "Total", "Estado", "Método Pago"};
+        DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
+        
+        String query = "SELECT v.id_venta, v.fecha, v.total, v.metodo_pago, " +
+                       "COALESCE(p.estado_pedido, 'Completado') as estado " +
+                       "FROM ventas v " +
+                       "LEFT JOIN pedidos p ON v.id_venta = p.id_venta " +
+                       "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+                       "WHERE c.usuario = ? " +
+                       "ORDER BY v.fecha DESC";
+        
+        try (Connection con = ConexionSQLServer.getConnection();
+             PreparedStatement ps = con.prepareStatement(query)) {
+            
+            ps.setString(1, nombreCliente);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                modelo.addRow(new Object[]{
+                    rs.getInt("id_venta"),
+                    rs.getTimestamp("fecha"),
+                    String.format("S/ %.2f", rs.getDouble("total")),
+                    rs.getString("estado"),
+                    rs.getString("metodo_pago")
+                });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        JTable tabla = new JTable(modelo);
+        JScrollPane scroll = new JScrollPane(tabla);
+        
+        ventanaPedidos.add(scroll);
+        ventanaPedidos.setVisible(true);
+    }
+    
+    private void abrirMisDirecciones() {
+        JFrame ventanaDirecciones = new JFrame("Mis Direcciones");
+        ventanaDirecciones.setSize(700, 500);
+        ventanaDirecciones.setLocationRelativeTo(this);
+        ventanaDirecciones.setLayout(new BorderLayout());
+        
+        DefaultListModel<String> modeloLista = new DefaultListModel<>();
+        JList<String> listaDirecciones = new JList<>(modeloLista);
+        
+        int idCliente = obtenerIdCliente(nombreCliente);
+        String query = "SELECT * FROM direcciones WHERE id_cliente = ? ORDER BY es_principal DESC";
+        
+        try (Connection con = ConexionSQLServer.getConnection();
+             PreparedStatement ps = con.prepareStatement(query)) {
+            
+            ps.setInt(1, idCliente);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                String direccion = String.format("%s%s - %s %s, %s %s (%s)",
+                    rs.getInt("es_principal") == 1 ? "⭐ " : "",
+                    rs.getString("alias"),
+                    rs.getString("calle"),
+                    rs.getString("numero"),
+                    rs.getString("distrito"),
+                    rs.getString("ciudad"),
+                    rs.getString("referencia")
+                );
+                modeloLista.addElement(direccion);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        JScrollPane scroll = new JScrollPane(listaDirecciones);
+        
+        JPanel panelBotones = new JPanel(new FlowLayout());
+        JButton btnAgregar = new JButton("➕ Agregar Dirección");
+        btnAgregar.addActionListener(e -> agregarNuevaDireccion(idCliente, modeloLista));
+        panelBotones.add(btnAgregar);
+        
+        ventanaDirecciones.add(scroll, BorderLayout.CENTER);
+        ventanaDirecciones.add(panelBotones, BorderLayout.SOUTH);
+        ventanaDirecciones.setVisible(true);
+    }
+    
+    private void agregarNuevaDireccion(int idCliente, DefaultListModel<String> modelo) {
+        JPanel panel = new JPanel(new GridLayout(8, 2, 10, 10));
+        
+        JTextField txtAlias = new JTextField();
+        JTextField txtCalle = new JTextField();
+        JTextField txtNumero = new JTextField();
+        JTextField txtDistrito = new JTextField();
+        JTextField txtCiudad = new JTextField("Lima");
+        JTextField txtDepartamento = new JTextField("Lima");
+        JTextField txtReferencia = new JTextField();
+        JCheckBox chkPrincipal = new JCheckBox();
+        
+        panel.add(new JLabel("Alias (Casa, Trabajo, etc.):"));
+        panel.add(txtAlias);
+        panel.add(new JLabel("Calle/Avenida:"));
+        panel.add(txtCalle);
+        panel.add(new JLabel("Número:"));
+        panel.add(txtNumero);
+        panel.add(new JLabel("Distrito:"));
+        panel.add(txtDistrito);
+        panel.add(new JLabel("Ciudad:"));
+        panel.add(txtCiudad);
+        panel.add(new JLabel("Departamento:"));
+        panel.add(txtDepartamento);
+        panel.add(new JLabel("Referencia:"));
+        panel.add(txtReferencia);
+        panel.add(new JLabel("¿Es dirección principal?"));
+        panel.add(chkPrincipal);
+        
+        int result = JOptionPane.showConfirmDialog(this, panel, "Nueva Dirección", JOptionPane.OK_CANCEL_OPTION);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            String query = "INSERT INTO direcciones (id_cliente, alias, calle, numero, distrito, ciudad, departamento, referencia, es_principal) " +
+                           "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            try (Connection con = ConexionSQLServer.getConnection();
+                 PreparedStatement ps = con.prepareStatement(query)) {
+                
+                ps.setInt(1, idCliente);
+                ps.setString(2, txtAlias.getText());
+                ps.setString(3, txtCalle.getText());
+                ps.setString(4, txtNumero.getText());
+                ps.setString(5, txtDistrito.getText());
+                ps.setString(6, txtCiudad.getText());
+                ps.setString(7, txtDepartamento.getText());
+                ps.setString(8, txtReferencia.getText());
+                ps.setInt(9, chkPrincipal.isSelected() ? 1 : 0);
+                
+                ps.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Dirección agregada correctamente");
+                
+                String direccion = String.format("%s%s - %s %s, %s %s (%s)",
+                    chkPrincipal.isSelected() ? "⭐ " : "",
+                    txtAlias.getText(),
+                    txtCalle.getText(),
+                    txtNumero.getText(),
+                    txtDistrito.getText(),
+                    txtCiudad.getText(),
+                    txtReferencia.getText()
+                );
+                modelo.addElement(direccion);
+                
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error al agregar dirección");
+            }
+        }
+    }
     
     public double obtenerDescuentoActivo() {
-        String query = "SELECT MAX(descuento) AS max_desc FROM CAMPAÑA_DESCUENTO " +
-                       "WHERE fecha_inicio <= GETDATE() AND fecha_fin >= GETDATE()";
+        String query = "SELECT MAX(descuento) AS max_desc FROM campana_descuento " +
+                       "WHERE fecha_inicio <= CURDATE() AND fecha_fin >= CURDATE() AND activo = 1";
 
         try (Connection conn = ConexionSQLServer.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
-                return rs.getDouble("max_desc");
+                return rs.getDouble("max_desc") / 100.0;
             }
 
         } catch (SQLException e) {
@@ -226,157 +464,101 @@ public class VentanaPrincipal extends JFrame {
         }
     }
     
-    
-    private void abrirConfiguraciones() {
+    private void realizarCompra(double total) {
 
-    JFrame ventanaConfig = new JFrame("Configuración de Usuario");
-    ventanaConfig.setSize(400, 300);
-    ventanaConfig.setLocationRelativeTo(this);
-    ventanaConfig.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    ventanaConfig.setLayout(new BorderLayout(10, 10));
+        JPanel panelOpciones = new JPanel();
+        panelOpciones.setLayout(new BoxLayout(panelOpciones, BoxLayout.Y_AXIS));
+        panelOpciones.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-    JPanel panelCampos = new JPanel(new GridLayout(4, 2, 10, 10));
-    panelCampos.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        JPanel filaPago = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel lblPago = new JLabel("Método de Pago:");
+        JComboBox<String> comboPago = new JComboBox<>(new String[]{"Efectivo", "Yape", "VISA"});
+        filaPago.add(lblPago);
+        filaPago.add(comboPago);
 
-    JLabel lblUsuario = new JLabel("Usuario actual:");
-    JTextField txtUsuario = new JTextField(nombreCliente);
-    txtUsuario.setEditable(false);
+        JLabel avisoPago = new JLabel(" ");
+        avisoPago.setForeground(Color.RED);
 
-    JLabel lblNuevoUsuario = new JLabel("Nuevo usuario:");
-    JTextField txtNuevoUsuario = new JTextField();
+        JPanel filaDelivery = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JLabel lblDelivery = new JLabel("Delivery:");
+        JComboBox<String> comboDelivery = new JComboBox<>(new String[]{"Sí", "No"});
+        filaDelivery.add(lblDelivery);
+        filaDelivery.add(comboDelivery);
 
-    panelCampos.add(lblUsuario);
-    panelCampos.add(txtUsuario);
+        JLabel avisoDelivery = new JLabel(" ");
+        avisoDelivery.setForeground(new Color(0, 100, 255));
 
-    panelCampos.add(lblNuevoUsuario);
-    panelCampos.add(txtNuevoUsuario);
+        panelOpciones.add(filaPago);
+        panelOpciones.add(avisoPago);
+        panelOpciones.add(Box.createVerticalStrut(8));
 
-    JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 10));
+        panelOpciones.add(filaDelivery);
+        panelOpciones.add(avisoDelivery);
 
-    JButton btnConfirmar = new JButton("Confirmar");
-    JButton btnSalir = new JButton("Salir");
+        comboPago.addActionListener(e -> {
+            if (comboPago.getSelectedItem().equals("VISA")) {
+                avisoPago.setText("+3% al total.");
+            } else {
+                avisoPago.setText("Sin Costos Adicionales");
+            }
+        });
 
-    panelBotones.add(btnConfirmar);
-    panelBotones.add(btnSalir);
+        comboDelivery.addActionListener(e -> {
+            if (comboDelivery.getSelectedItem().equals("Sí")) {
+                avisoDelivery.setText("+S/. 5.00");
+            } else {
+                avisoDelivery.setText("-----");
+            }
+        });
 
-    btnSalir.addActionListener(e -> ventanaConfig.dispose());
+        int opcion = JOptionPane.showConfirmDialog(
+                this, panelOpciones, "Opciones de Compra",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+        );
 
-    btnConfirmar.addActionListener(e -> {
-    String nuevoUsuario = txtNuevoUsuario.getText().trim();
+        if (opcion != JOptionPane.OK_OPTION) return;
 
-    if (nuevoUsuario.isEmpty()) {
-        JOptionPane.showMessageDialog(ventanaConfig, "Debe completar todos los campos.", "Error", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
+        String metodoPago = comboPago.getSelectedItem().toString();
+        String delivery = comboDelivery.getSelectedItem().toString();
+        String usuario = nombreCliente;
 
-    boolean actualizado = actualizarUsuario(nombreCliente, nuevoUsuario);
+        CampañaDescuentoDAO dao = new CampañaDescuentoDAO();
+        CampañaDescuento camp = dao.obtenerCampañaActiva();
 
-    if (actualizado) {
-        JOptionPane.showMessageDialog(ventanaConfig, "Usuario actualizado correctamente.");
-        nombreCliente = nuevoUsuario;
-        ventanaConfig.dispose();
-    }
-});
-    ventanaConfig.add(panelCampos, BorderLayout.CENTER);
-    ventanaConfig.add(panelBotones, BorderLayout.SOUTH);
-    ventanaConfig.setVisible(true);
-}
-    
-private void realizarCompra(double total) {
+        double descuentoPorcentaje = 0;
+        String nombreCampaña = "Ninguna";
 
-    JPanel panelOpciones = new JPanel();
-    panelOpciones.setLayout(new BoxLayout(panelOpciones, BoxLayout.Y_AXIS));
-    panelOpciones.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-    JPanel filaPago = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    JLabel lblPago = new JLabel("Método de Pago:");
-    JComboBox<String> comboPago = new JComboBox<>(new String[]{"Efectivo", "Yape", "VISA"});
-    filaPago.add(lblPago);
-    filaPago.add(comboPago);
-
-    JLabel avisoPago = new JLabel(" ");
-    avisoPago.setForeground(Color.RED);
-
-    JPanel filaDelivery = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    JLabel lblDelivery = new JLabel("Delivery:");
-    JComboBox<String> comboDelivery = new JComboBox<>(new String[]{"Sí", "No"});
-    filaDelivery.add(lblDelivery);
-    filaDelivery.add(comboDelivery);
-
-    JLabel avisoDelivery = new JLabel(" ");
-    avisoDelivery.setForeground(new Color(0, 100, 255));
-
-    panelOpciones.add(filaPago);
-    panelOpciones.add(avisoPago);
-    panelOpciones.add(Box.createVerticalStrut(8));
-
-    panelOpciones.add(filaDelivery);
-    panelOpciones.add(avisoDelivery);
-
-    comboPago.addActionListener(e -> {
-        if (comboPago.getSelectedItem().equals("VISA")) {
-            avisoPago.setText("+3% al total.");
-        } else {
-            avisoPago.setText("Sin Costos Adicionales");
+        if (camp != null) {
+            descuentoPorcentaje = camp.getPorcentajeDescuento();
+            nombreCampaña = camp.getNombre();
         }
-    });
 
-    comboDelivery.addActionListener(e -> {
-        if (comboDelivery.getSelectedItem().equals("Sí")) {
-            avisoDelivery.setText("+S/. 5.00");
-        } else {
-            avisoDelivery.setText("-----");
+        double descuentoMonto = total * descuentoPorcentaje;
+        double totalConDescuento = total - descuentoMonto;
+
+        List<CarritoProducto> carritoCopia = new ArrayList<>(carrito);
+
+        insertarVenta(usuario, carrito, totalConDescuento, metodoPago, delivery);
+
+        for (CarritoProducto carritoProducto : carrito) {
+            Producto producto = carritoProducto.getProducto();
+            int cantidad = carritoProducto.getCantidad();
+
+            actualizarStockEnBaseDeDatos(producto, cantidad);
+            producto.setStock(producto.getStock() - cantidad);
         }
-    });
 
-    int opcion = JOptionPane.showConfirmDialog(
-            this, panelOpciones, "Opciones de Compra",
-            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
-    );
+        carrito.clear();
+        contadorCarrito = 0;
+        btnCarrito.setText("🛒 Carrito (0)");
 
-    if (opcion != JOptionPane.OK_OPTION) return;
-
-    String metodoPago = comboPago.getSelectedItem().toString();
-    String delivery = comboDelivery.getSelectedItem().toString();
-    String usuario = nombreCliente;
-
-    CampañaDescuentoDAO dao = new CampañaDescuentoDAO();
-    CampañaDescuento camp = dao.obtenerCampañaActiva();
-
-    double descuentoPorcentaje = 0;
-    String nombreCampaña = "Ninguna";
-
-    if (camp != null) {
-        descuentoPorcentaje = camp.getPorcentajeDescuento();
-        nombreCampaña = camp.getNombre();
-    }
-
-    double descuentoMonto = total * descuentoPorcentaje;
-    double totalConDescuento = total - descuentoMonto;
-
-    List<CarritoProducto> carritoCopia = new ArrayList<>(carrito);
-
-    insertarVenta(usuario, carrito, totalConDescuento, metodoPago, delivery);
-
-    for (CarritoProducto carritoProducto : carrito) {
-        Producto producto = carritoProducto.getProducto();
-        int cantidad = carritoProducto.getCantidad();
-
-        actualizarStockEnBaseDeDatos(producto, cantidad);
-        producto.setStock(producto.getStock() - cantidad);
-    }
-
-    carrito.clear();
-    contadorCarrito = 0;
-    btnCarrito.setText("🛒 Carrito (0)");
-
-    JOptionPane.showMessageDialog(
-            this,
-            "¡Compra realizada con éxito!\n" +
-            "Total antes del descuento: S/ " + String.format("%.2f", total) + "\n" +
-            "Descuento aplicado: S/ " + String.format("%.2f", descuentoMonto) + "\n" +
-            "Total a pagar: S/ " + String.format("%.2f", totalConDescuento)
-    );
+        JOptionPane.showMessageDialog(
+                this,
+                "¡Compra realizada con éxito!\n" +
+                "Total antes del descuento: S/ " + String.format("%.2f", total) + "\n" +
+                "Descuento aplicado: S/ " + String.format("%.2f", descuentoMonto) + "\n" +
+                "Total a pagar: S/ " + String.format("%.2f", totalConDescuento)
+        );
 
         GenerarPDF.generarBoletaDeVenta(
             usuario,
@@ -386,18 +568,16 @@ private void realizarCompra(double total) {
             delivery,
             nombreCampaña,
             descuentoPorcentaje * 100 
-    );
-}
-    
+        );
+    }
 
     private void actualizarStockEnBaseDeDatos(Producto producto, int cantidadComprada) {
-        String query = "UPDATE PRODUCTO SET stock = stock - ? WHERE id_producto = ?";
+        String query = "UPDATE producto SET stock = stock - ? WHERE id_producto = ?";
 
         try (Connection conn = ConexionSQLServer.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setInt(1, cantidadComprada);
-
             stmt.setInt(2, producto.getIdProducto()); 
 
             int filasAfectadas = stmt.executeUpdate();
@@ -415,73 +595,71 @@ private void realizarCompra(double total) {
       
     private boolean actualizarUsuario(String usuario, String nuevoUsuario) {
 
-    usuario = nombreCliente;
+        usuario = nombreCliente;
 
-    String queryValidar = "SELECT * FROM CLIENTE WHERE usuario = ?";
-    String queryUpdate  = "UPDATE CLIENTE SET usuario = ? WHERE usuario = ?";
-    String queryUpdateUsuario = "UPDATE usuarios SET usuario = ? WHERE usuario = ?";
+        String queryValidar = "SELECT * FROM cliente WHERE usuario = ?";
+        String queryUpdate  = "UPDATE cliente SET usuario = ? WHERE usuario = ?";
+        String queryUpdateUsuario = "UPDATE usuarios SET usuario = ? WHERE usuario = ?";
 
-    try (Connection conn = ConexionSQLServer.getConnection();
-         PreparedStatement validarStmt = conn.prepareStatement(queryValidar)) {
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement validarStmt = conn.prepareStatement(queryValidar)) {
 
-        validarStmt.setString(1, usuario);
+            validarStmt.setString(1, usuario);
 
-        ResultSet rs = validarStmt.executeQuery();
+            ResultSet rs = validarStmt.executeQuery();
 
-        if (!rs.next()) {
+            if (!rs.next()) {
+                return false;
+            }
+
+            PreparedStatement updateCliente = conn.prepareStatement(queryUpdate);
+            updateCliente.setString(1, nuevoUsuario);
+            updateCliente.setString(2, usuario);
+
+            PreparedStatement updateUsuario = conn.prepareStatement(queryUpdateUsuario);
+            updateUsuario.setString(1, nuevoUsuario);
+            updateUsuario.setString(2, usuario);
+
+            int filasCliente = updateCliente.executeUpdate();
+            int filasUsuario = updateUsuario.executeUpdate();
+
+            return filasCliente > 0 && filasUsuario > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
             return false;
         }
-
-        PreparedStatement updateCliente = conn.prepareStatement(queryUpdate);
-        updateCliente.setString(1, nuevoUsuario);
-        updateCliente.setString(2, usuario);
-
-        PreparedStatement updateUsuario = conn.prepareStatement(queryUpdateUsuario);
-        updateUsuario.setString(1, nuevoUsuario);
-        updateUsuario.setString(2, usuario);
-
-        int filasCliente = updateCliente.executeUpdate();
-        int filasUsuario = updateUsuario.executeUpdate();
-
-        return filasCliente > 0 && filasUsuario > 0;
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        return false;
     }
-}
-
 
     private int obtenerIdCliente(String usuario) {
-    String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-    String query = "SELECT id_cliente FROM CLIENTE WHERE usuario = ?";
+        String query = "SELECT id_cliente FROM cliente WHERE usuario = ?";
 
-    try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
-          PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-         usuario = usuario.trim();
-         System.out.println("Buscando usuario: '" + usuario + "'");
+            usuario = usuario.trim();
+            System.out.println("Buscando usuario: '" + usuario + "'");
 
-         stmt.setString(1, usuario);
-         ResultSet rs = stmt.executeQuery();
+            stmt.setString(1, usuario);
+            ResultSet rs = stmt.executeQuery();
 
-         if (rs.next()) {
-             return rs.getInt("id_cliente");
-         } else {
-             System.out.println("Usuario no encontrado: " + usuario);
-         }
+            if (rs.next()) {
+                return rs.getInt("id_cliente");
+            } else {
+                System.out.println("Usuario no encontrado: " + usuario);
+            }
 
-     } catch (SQLException e) {
-         e.printStackTrace();
-         System.out.println("Error al obtener el id_cliente: " + e.getMessage());
-     }
-     return -1;
- }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error al obtener el id_cliente: " + e.getMessage());
+        }
+        return -1;
+    }
    
     public void insertarVenta(String usuario, List<CarritoProducto> carrito, double total,
                           String metodoPago, String delivery) {
-        String queryVenta = "INSERT INTO VENTAS (id_cliente, fecha, total, metodo_pago, delivery) VALUES (?, ?, ?, ?, ?)";
-        String queryProductoVendido = "INSERT INTO PRODUCTOS_VENDIDOS (id_venta, id_producto, precio, cantidad, subtotal) VALUES (?, ?, ?, ?, ?)";
+        String queryVenta = "INSERT INTO ventas (id_cliente, fecha, total, metodo_pago, delivery) VALUES (?, ?, ?, ?, ?)";
+        String queryProductoVendido = "INSERT INTO productos_vendidos (id_venta, id_producto, precio, cantidad, subtotal) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = ConexionSQLServer.getConnection();
              PreparedStatement stmtVenta = conn.prepareStatement(queryVenta, Statement.RETURN_GENERATED_KEYS);
@@ -526,9 +704,6 @@ private void realizarCompra(double total) {
         }
     }
     
-  
-  
-  
     private void crearPanelMenu() {
         panelMenu = new JPanel();
         panelMenu.setLayout(new BoxLayout(panelMenu, BoxLayout.Y_AXIS));
@@ -546,10 +721,9 @@ private void realizarCompra(double total) {
         panelMenu.add(btnTodos);
         panelMenu.add(Box.createVerticalStrut(8));
         
-        
         String[][] categorias = {
             {"📖 Libros", "Libros"},
-            {"✏️ Útiles Escolares", "Útiles"},
+            {"✏️ Útiles Escolares", "Útiles Escolares"},
             {"🎨 Arte y Manualidades", "Arte"},
             {"💼 Oficina", "Oficina"},
             {"🎒 Mochilas", "Mochilas"},
@@ -562,7 +736,6 @@ private void realizarCompra(double total) {
             JButton btnCategoria = crearBotonCategoria(categoria[0], categoria[1]);
             panelMenu.add(btnCategoria);
             panelMenu.add(Box.createVerticalStrut(8));
-            panelMenu.add(btnComprar);
         }
         
         add(panelMenu, BorderLayout.WEST);
@@ -629,68 +802,68 @@ private void realizarCompra(double total) {
     }
     
     private void cargarProductosEjemplo() {
-          productos = new ArrayList<>();
-          String query = "SELECT * FROM PRODUCTO WHERE estado = 'Activo'"; 
+        productos = new ArrayList<>();
+        String query = "SELECT * FROM producto WHERE estado = 'Activo'"; 
 
-    try (Connection con = ConexionSQLServer.getConnection(); 
-         PreparedStatement ps = con.prepareStatement(query); 
-         ResultSet rs = ps.executeQuery()) {
+        try (Connection con = ConexionSQLServer.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(query); 
+             ResultSet rs = ps.executeQuery()) {
 
-        while (rs.next()) {
-            int id_producto = rs.getInt("id_producto");
-            String nombre = rs.getString("nombre");
-            String categoria = rs.getString("categoria");
-            double precio = rs.getDouble("precio");
-            int stock = rs.getInt("stock");
-
-            Producto producto = new Producto(id_producto,nombre, precio, categoria, "", stock);
-            productos.add(producto);
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al cargar los productos desde la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    }
-    
-    private void filtrarPorCategoria(String categoria) {
-    List<Producto> productosFiltrados = new ArrayList<>();
-
-    try (Connection con = ConexionSQLServer.getConnection()) {
-        String query = "SELECT * FROM PRODUCTO WHERE estado = 'Activo'";  
-        
-        if (categoria != null && !categoria.equals("Todos")) {
-            query += " AND categoria = ?"; 
-        }
-
-        try (PreparedStatement pst = con.prepareStatement(query)) {
-            if (categoria != null && !categoria.equals("Todos")) {
-                pst.setString(1, categoria);
-            }
-
-            ResultSet rs = pst.executeQuery();
             while (rs.next()) {
                 int id_producto = rs.getInt("id_producto");
                 String nombre = rs.getString("nombre");
-                String categoriaProducto = rs.getString("categoria");
+                String categoria = rs.getString("categoria");
                 double precio = rs.getDouble("precio");
                 int stock = rs.getInt("stock");
 
-                Producto producto = new Producto(id_producto,nombre, precio, categoriaProducto, "", stock);
-                productosFiltrados.add(producto);
+                Producto producto = new Producto(id_producto, nombre, precio, categoria, "", stock);
+                productos.add(producto);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar los productos desde la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
+    
+    private void filtrarPorCategoria(String categoria) {
+        List<Producto> productosFiltrados = new ArrayList<>();
 
-    if (categoria.equals("Todos")) {
-        lblTituloSeccion.setText("Todos los Productos");
-    } else {
-        lblTituloSeccion.setText("Categoría: " + categoria);
+        try (Connection con = ConexionSQLServer.getConnection()) {
+            String query = "SELECT * FROM producto WHERE estado = 'Activo'";  
+            
+            if (categoria != null && !categoria.equals("Todos")) {
+                query += " AND categoria = ?"; 
+            }
+
+            try (PreparedStatement pst = con.prepareStatement(query)) {
+                if (categoria != null && !categoria.equals("Todos")) {
+                    pst.setString(1, categoria);
+                }
+
+                ResultSet rs = pst.executeQuery();
+                while (rs.next()) {
+                    int id_producto = rs.getInt("id_producto");
+                    String nombre = rs.getString("nombre");
+                    String categoriaProducto = rs.getString("categoria");
+                    double precio = rs.getDouble("precio");
+                    int stock = rs.getInt("stock");
+
+                    Producto producto = new Producto(id_producto, nombre, precio, categoriaProducto, "", stock);
+                    productosFiltrados.add(producto);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (categoria.equals("Todos")) {
+            lblTituloSeccion.setText("Todos los Productos");
+        } else {
+            lblTituloSeccion.setText("Categoría: " + categoria);
+        }
+
+        mostrarProductos(productosFiltrados);
     }
-
-    mostrarProductos(productosFiltrados);
-}
 
     public void mostrarProductos(List<Producto> productosFiltrados) {
         panelContenido.removeAll();
@@ -719,109 +892,107 @@ private void realizarCompra(double total) {
     }
     
     private void buscarProductos() {
-    String busqueda = txtBuscar.getText().trim().toLowerCase();
+        String busqueda = txtBuscar.getText().trim().toLowerCase();
 
-    if (busqueda.isEmpty()) {
-        mostrarProductos("Todos los Productos");
-        return;
-    }
-    String query = "SELECT * FROM PRODUCTO WHERE estado = 'Activo' " +
-                   "AND (LOWER(nombre) LIKE ? OR LOWER(categoria) LIKE ?)";
-
-    List<Producto> resultados = new ArrayList<>();
-
-    try (Connection con = ConexionSQLServer.getConnection();
-         PreparedStatement pst = con.prepareStatement(query)) {
-
-        pst.setString(1, "%" + busqueda + "%"); 
-        pst.setString(2, "%" + busqueda + "%");
-
-        ResultSet rs = pst.executeQuery();
-
-        while (rs.next()) {
-            int id_producto = rs.getInt("id_producto");
-            String nombre = rs.getString("nombre");
-            String categoria = rs.getString("categoria");
-            double precio = rs.getDouble("precio");
-            int stock = rs.getInt("stock");
-
-            Producto producto = new Producto(id_producto,nombre, precio, categoria, "", stock);
-            resultados.add(producto);
+        if (busqueda.isEmpty()) {
+            mostrarProductos("Todos los Productos");
+            return;
         }
+        String query = "SELECT * FROM producto WHERE estado = 'Activo' " +
+                       "AND (LOWER(nombre) LIKE ? OR LOWER(categoria) LIKE ?)";
 
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, 
-            "Error al buscar productos en la base de datos.", 
-            "Error", JOptionPane.ERROR_MESSAGE);
-    }
-    lblTituloSeccion.setText("Resultados para: \"" + txtBuscar.getText() + "\"");
-    mostrarProductos(resultados);
-    if (resultados.isEmpty()) {
-        JOptionPane.showMessageDialog(this, 
-            "No se encontraron productos con: " + txtBuscar.getText(),
-            "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
-    }
-}
+        List<Producto> resultados = new ArrayList<>();
 
-    
-    public void mostrarProductos(String titulo) {
-    panelContenido.removeAll();
+        try (Connection con = ConexionSQLServer.getConnection();
+             PreparedStatement pst = con.prepareStatement(query)) {
 
-    if (titulo != null) {
-        lblTituloSeccion.setText(titulo);
-    }
+            pst.setString(1, "%" + busqueda + "%"); 
+            pst.setString(2, "%" + busqueda + "%");
 
-    String query = "SELECT * FROM PRODUCTO WHERE estado = 'Activo'";
+            ResultSet rs = pst.executeQuery();
 
-    if (titulo != null && !titulo.equals("Todos los Productos")) {
-        query += " AND categoria = ?";
-    }
+            while (rs.next()) {
+                int id_producto = rs.getInt("id_producto");
+                String nombre = rs.getString("nombre");
+                String categoria = rs.getString("categoria");
+                double precio = rs.getDouble("precio");
+                int stock = rs.getInt("stock");
 
-    try (Connection con = ConexionSQLServer.getConnection(); 
-         PreparedStatement ps = con.prepareStatement(query)) {
-
-        if (titulo != null && !titulo.equals("Todos los Productos")) {
-            String categoria = titulo.replace("Categoría: ", "");
-            ps.setString(1, categoria);
-        }
-
-        try (ResultSet rs = ps.executeQuery()) {
-            if (!rs.next()) {
-                JLabel lblVacio = new JLabel("No hay productos en esta categoría");
-                lblVacio.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-                lblVacio.setForeground(Color.GRAY);
-                panelContenido.add(lblVacio); 
-            } else {
-                do {
-                    int id_producto = rs.getInt("id_producto");
-                    String nombre = rs.getString("nombre");
-                    String categoriaProducto = rs.getString("categoria");
-                    double precio = rs.getDouble("precio");
-                    int stock = rs.getInt("stock");
-                    Producto producto = new Producto(id_producto, nombre, precio, categoriaProducto, "", stock);
-                    PanelProducto panelProd = new PanelProducto(producto);
-                    panelProd.addMouseListener(new java.awt.event.MouseAdapter() {
-                        @Override
-                        public void mouseClicked(java.awt.event.MouseEvent evt) {
-                            agregarAlCarrito(producto);
-                        }
-                    });
-                    panelContenido.add(panelProd);
-                } while (rs.next());
+                Producto producto = new Producto(id_producto, nombre, precio, categoria, "", stock);
+                resultados.add(producto);
             }
 
-            panelContenido.revalidate();
-            panelContenido.repaint();
-            scrollProductos.getVerticalScrollBar().setValue(0); 
-
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Error al buscar productos en la base de datos.", 
+                "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al cargar los productos desde la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+        lblTituloSeccion.setText("Resultados para: \"" + txtBuscar.getText() + "\"");
+        mostrarProductos(resultados);
+        if (resultados.isEmpty()) {
+            JOptionPane.showMessageDialog(this, 
+                "No se encontraron productos con: " + txtBuscar.getText(),
+                "Sin resultados", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
-}
-  
+
+    public void mostrarProductos(String titulo) {
+        panelContenido.removeAll();
+
+        if (titulo != null) {
+            lblTituloSeccion.setText(titulo);
+        }
+
+        String query = "SELECT * FROM producto WHERE estado = 'Activo'";
+
+        if (titulo != null && !titulo.equals("Todos los Productos")) {
+            query += " AND categoria = ?";
+        }
+
+        try (Connection con = ConexionSQLServer.getConnection(); 
+             PreparedStatement ps = con.prepareStatement(query)) {
+
+            if (titulo != null && !titulo.equals("Todos los Productos")) {
+                String categoria = titulo.replace("Categoría: ", "");
+                ps.setString(1, categoria);
+            }
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    JLabel lblVacio = new JLabel("No hay productos en esta categoría");
+                    lblVacio.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+                    lblVacio.setForeground(Color.GRAY);
+                    panelContenido.add(lblVacio); 
+                } else {
+                    do {
+                        int id_producto = rs.getInt("id_producto");
+                        String nombre = rs.getString("nombre");
+                        String categoriaProducto = rs.getString("categoria");
+                        double precio = rs.getDouble("precio");
+                        int stock = rs.getInt("stock");
+                        Producto producto = new Producto(id_producto, nombre, precio, categoriaProducto, "", stock);
+                        PanelProducto panelProd = new PanelProducto(producto);
+                        panelProd.addMouseListener(new java.awt.event.MouseAdapter() {
+                            @Override
+                            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                                agregarAlCarrito(producto);
+                            }
+                        });
+                        panelContenido.add(panelProd);
+                    } while (rs.next());
+                }
+
+                panelContenido.revalidate();
+                panelContenido.repaint();
+                scrollProductos.getVerticalScrollBar().setValue(0); 
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar los productos desde la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
     
     private void agregarAlCarrito(Producto producto) {
         int respuesta = JOptionPane.showConfirmDialog(this,
@@ -850,7 +1021,6 @@ private void realizarCompra(double total) {
                         }
 
                         contadorCarrito += cantidad;
-
                         btnCarrito.setText("🛒 Carrito (" + contadorCarrito + ")");
 
                         boolean encontrado = false;
@@ -891,64 +1061,140 @@ private void realizarCompra(double total) {
         }
     }
     
+    // =====================================================================
+    // MÉTODO verCarrito() MODIFICADO:
+    // - Columna "Eliminar" REMOVIDA de la tabla
+    // - Botón "🗑 Eliminar Seleccionado" agregado junto a "💳 Comprar"
+    // - Para eliminar: selecciona una fila y presiona el botón Eliminar
+    // =====================================================================
     private void verCarrito() {
-    if (carrito.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "El carrito está vacío.", "Carrito Vacío", JOptionPane.INFORMATION_MESSAGE);
-    } else {
-        JFrame ventanaCarrito = new JFrame("Carrito de Compras");
-        ventanaCarrito.setSize(600, 400); 
-        ventanaCarrito.setLocationRelativeTo(this);
-        ventanaCarrito.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        String[] columnas = {"Producto", "Precio", "Cantidad", "Subtotal"};
-        DefaultTableModel modeloTabla = new DefaultTableModel(columnas, 0);
+        if (carrito.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "El carrito está vacío.", "Carrito Vacío", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JFrame ventanaCarrito = new JFrame("Carrito de Compras");
+            ventanaCarrito.setSize(700, 500);
+            ventanaCarrito.setLocationRelativeTo(this);
+            ventanaCarrito.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            ventanaCarrito.setLayout(new BorderLayout());
 
-        double descuento = obtenerDescuentoActivo();
-        double total = 0;
+            // Sin columna "Eliminar" en la tabla
+            String[] columnas = {"Producto", "Precio", "Cantidad", "Subtotal"};
+            DefaultTableModel modeloTabla = new DefaultTableModel(columnas, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return false; // Ninguna celda es editable
+                }
+            };
 
-        for (CarritoProducto cp : carrito) {
-            String nombreProducto = cp.getProducto().getNombre();
-            double precioOriginal = cp.getProducto().getPrecio();
+            double descuento = obtenerDescuentoActivo();
+            double total = 0;
 
-            double precioConDesc = precioOriginal;
-            if (descuento > 0) {
-                precioConDesc = precioOriginal - (precioOriginal * descuento);
+            for (CarritoProducto cp : carrito) {
+                String nombreProducto = cp.getProducto().getNombre();
+                double precioOriginal = cp.getProducto().getPrecio();
+
+                double precioConDesc = precioOriginal;
+                if (descuento > 0) {
+                    precioConDesc = precioOriginal - (precioOriginal * descuento);
+                }
+
+                int cantidad = cp.getCantidad();
+                double subtotal = precioConDesc * cantidad;
+
+                modeloTabla.addRow(new Object[]{
+                    nombreProducto,
+                    String.format("S/ %.2f", precioConDesc),
+                    cantidad,
+                    String.format("S/ %.2f", subtotal)
+                });
+
+                total += subtotal;
             }
 
-            int cantidad = cp.getCantidad();
-            double subtotal = precioConDesc * cantidad;
+            JTable tablaCarrito = new JTable(modeloTabla);
+            tablaCarrito.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            tablaCarrito.getTableHeader().setReorderingAllowed(false);
 
-            modeloTabla.addRow(new Object[]{
-                nombreProducto,
-                String.format("S/ %.2f", precioConDesc),
-                cantidad,
-                String.format("S/ %.2f", subtotal)
+            JScrollPane scrollPane = new JScrollPane(tablaCarrito);
+
+            // Panel inferior con total y botones
+            JPanel panelInferior = new JPanel(new BorderLayout());
+
+            // Total
+            JPanel panelTotal = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            final double totalFinal = total;
+            JLabel lblTotal = new JLabel(String.format("Total a Pagar: S/ %.2f", total));
+            lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            panelTotal.add(lblTotal);
+
+            // Botones: Eliminar + Comprar juntos
+            JPanel panelBotones = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+
+            // Botón Eliminar seleccionado
+            JButton btnEliminar = new JButton("🗑 Eliminar");
+            btnEliminar.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            btnEliminar.setBackground(new Color(200, 50, 50));
+            btnEliminar.setForeground(Color.WHITE);
+            btnEliminar.setPreferredSize(new Dimension(150, 40));
+            btnEliminar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            btnEliminar.setFocusPainted(false);
+            btnEliminar.addActionListener(e -> {
+                int filaSeleccionada = tablaCarrito.getSelectedRow();
+                if (filaSeleccionada == -1) {
+                    JOptionPane.showMessageDialog(ventanaCarrito,
+                        "Selecciona un producto de la tabla para eliminarlo.",
+                        "Selección requerida",
+                        JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                int respuesta = JOptionPane.showConfirmDialog(ventanaCarrito,
+                    "¿Eliminar \"" + modeloTabla.getValueAt(filaSeleccionada, 0) + "\" del carrito?",
+                    "Confirmar eliminación",
+                    JOptionPane.YES_NO_OPTION);
+                if (respuesta == JOptionPane.YES_OPTION) {
+                    CarritoProducto productoEliminar = carrito.get(filaSeleccionada);
+                    contadorCarrito -= productoEliminar.getCantidad();
+                    carrito.remove(filaSeleccionada);
+                    btnCarrito.setText("🛒 Carrito (" + contadorCarrito + ")");
+                    ventanaCarrito.dispose();
+                    verCarrito(); // Reabre el carrito actualizado
+                }
             });
 
-            total += subtotal;
-            
-        }
-        
-        JTable tablaCarrito = new JTable(modeloTabla);
-        JScrollPane scrollPane = new JScrollPane(tablaCarrito);
-        JPanel panelCarrito = new JPanel(new BorderLayout());
-        panelCarrito.add(scrollPane, BorderLayout.CENTER);
-        JPanel panelTotal = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JLabel lblTotal = new JLabel(String.format("Total a Pagar: S/ %.2f", total));
-        panelTotal.add(lblTotal);
-        panelCarrito.add(panelTotal, BorderLayout.SOUTH);
-        ventanaCarrito.add(panelCarrito);
-        ventanaCarrito.setVisible(true);
-        if (descuento > 0) {
-        lblTotal.setText(String.format(
-            "<html>Total a Pagar (con %.0f%% desc.): <b>S/ %.2f</b></html>",
-            descuento * 100,
-            total
-        ));
+            // Botón Comprar
+            JButton btnComprarCarrito = new JButton("💳 Comprar");
+            btnComprarCarrito.setFont(new Font("Segoe UI", Font.BOLD, 14));
+            btnComprarCarrito.setBackground(new Color(50, 150, 50));
+            btnComprarCarrito.setForeground(Color.WHITE);
+            btnComprarCarrito.setPreferredSize(new Dimension(150, 40));
+            btnComprarCarrito.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            btnComprarCarrito.setFocusPainted(false);
+            btnComprarCarrito.addActionListener(e -> {
+                ventanaCarrito.dispose();
+                mostrarTotalCompra();
+            });
+
+            panelBotones.add(btnEliminar);
+            panelBotones.add(btnComprarCarrito);
+
+            panelInferior.add(panelTotal, BorderLayout.NORTH);
+            panelInferior.add(panelBotones, BorderLayout.CENTER);
+
+            ventanaCarrito.add(scrollPane, BorderLayout.CENTER);
+            ventanaCarrito.add(panelInferior, BorderLayout.SOUTH);
+
+            if (descuento > 0) {
+                lblTotal.setText(String.format(
+                    "<html>Total a Pagar (con %.0f%% desc.): <b>S/ %.2f</b></html>",
+                    descuento * 100,
+                    totalFinal
+                ));
+            }
+
+            ventanaCarrito.setVisible(true);
         }
     }
-}
- 
-    
+
     public void actualizarProductos() {
         mostrarProductos("Todos los Productos");
     }
@@ -965,7 +1211,7 @@ private void realizarCompra(double total) {
     }
     
     public void agregarProductoAlCarrito(Producto producto, int cantidad) {
-    CarritoProducto carritoProducto = new CarritoProducto(producto, cantidad);
-    carrito.add(carritoProducto);
-}
+        CarritoProducto carritoProducto = new CarritoProducto(producto, cantidad);
+        carrito.add(carritoProducto);
+    }
 }

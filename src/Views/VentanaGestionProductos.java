@@ -29,45 +29,44 @@ public class VentanaGestionProductos extends JFrame {
     }
     
     private void initComponents() {
-    setTitle("Gestión de Productos - Librería");
-    setSize(900, 600);
-    setLocationRelativeTo(null);
-    setLayout(new BorderLayout(10, 10));
+        setTitle("Gestión de Productos - Librería");
+        setSize(900, 600);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(10, 10));
 
-    JPanel panelTitulo = new JPanel();
-    panelTitulo.setBackground(new Color(200, 50, 50));
-    panelTitulo.setPreferredSize(new Dimension(getWidth(), 60));
+        JPanel panelTitulo = new JPanel();
+        panelTitulo.setBackground(new Color(200, 50, 50));
+        panelTitulo.setPreferredSize(new Dimension(getWidth(), 60));
 
-    JLabel lblTitulo = new JLabel("📦 GESTIÓN DE PRODUCTOS");
-    lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
-    lblTitulo.setForeground(Color.WHITE);
-    panelTitulo.add(lblTitulo);
+        JLabel lblTitulo = new JLabel("📦 GESTIÓN DE PRODUCTOS");
+        lblTitulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitulo.setForeground(Color.WHITE);
+        panelTitulo.add(lblTitulo);
 
-    add(panelTitulo, BorderLayout.NORTH);
+        add(panelTitulo, BorderLayout.NORTH);
 
-    crearTabla();
+        crearTabla();
+        crearPanelBotones();
 
-    crearPanelBotones();
+        getContentPane().setBackground(Color.WHITE);
 
-    getContentPane().setBackground(Color.WHITE);
+        JTextField txtBuscar = new JTextField(20);
+        JButton btnBuscar = new JButton("Buscar Producto");
+        btnBuscar.setBackground(new Color(40, 167, 69));
+        btnBuscar.setForeground(Color.WHITE);
+        btnBuscar.setPreferredSize(new Dimension(200, 45));
 
-    JTextField txtBuscar = new JTextField(20);  
-    JButton btnBuscar = new JButton("Buscar Producto");
-    btnBuscar.setBackground(new Color(40, 167, 69));  
-    btnBuscar.setForeground(Color.WHITE);
-    btnBuscar.setPreferredSize(new Dimension(200, 45));
+        btnBuscar.addActionListener(e -> buscarProducto(txtBuscar.getText().trim()));
 
-    btnBuscar.addActionListener(e -> buscarProducto(txtBuscar.getText().trim()));  
-
-    JPanel panelBusqueda = new JPanel();
-    panelBusqueda.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));  
-    panelBusqueda.add(new JLabel("Buscar Producto:"));
-    panelBusqueda.add(txtBuscar);
-    panelBusqueda.add(btnBuscar);
+        JPanel panelBusqueda = new JPanel();
+        panelBusqueda.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        panelBusqueda.add(new JLabel("Buscar Producto:"));
+        panelBusqueda.add(txtBuscar);
+        panelBusqueda.add(btnBuscar);
 
 
-    add(panelBusqueda, BorderLayout.NORTH);
-}
+        add(panelBusqueda, BorderLayout.NORTH);
+    }
     
     private void crearTabla() {
         String[] columnas = {"Nombre", "Precio (S/)", "Categoría", "Stock"};
@@ -101,7 +100,7 @@ public class VentanaGestionProductos extends JFrame {
         btnEliminar = crearBoton("🗑️ Eliminar Producto", new Color(220, 53, 69));
         btnAgregarCampaña = crearBoton("Agregar Campaña", new Color(40, 167, 69));
         
-        btnAgregarCampaña.addActionListener(e -> abrirFormularioCampaña());       
+        btnAgregarCampaña.addActionListener(e -> abrirFormularioCampaña());
         btnAgregar.addActionListener(e -> agregarProducto());
         btnEditar.addActionListener(e -> editarProducto());
         btnEliminar.addActionListener(e -> eliminarProducto());
@@ -114,61 +113,63 @@ public class VentanaGestionProductos extends JFrame {
         
         add(panelBotones, BorderLayout.SOUTH);
     }
+
     private void abrirFormularioCampaña() {
+        JTextField txtNombre = new JTextField(20);
+        JTextField txtDescuento = new JTextField(5);
 
-    JTextField txtNombre = new JTextField(20);
-    JTextField txtDescuento = new JTextField(5);
+        JTextField txtInicio = new JTextField("2025-12-01");
+        JTextField txtFin = new JTextField("2025-12-25");
 
-    JTextField txtInicio = new JTextField("2025-12-01");
-    JTextField txtFin = new JTextField("2025-12-25");
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-    JPanel panel = new JPanel();
-    panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(new JLabel("Nombre de la campaña:"));
+        panel.add(txtNombre);
 
-    panel.add(new JLabel("Nombre de la campaña:"));
-    panel.add(txtNombre);
+        panel.add(new JLabel("Descuento (%):"));
+        panel.add(txtDescuento);
 
-    panel.add(new JLabel("Descuento (%):"));
-    panel.add(txtDescuento);
+        panel.add(new JLabel("Fecha inicio (YYYY-MM-DD):"));
+        panel.add(txtInicio);
 
-    panel.add(new JLabel("Fecha inicio (YYYY-MM-DD):"));
-    panel.add(txtInicio);
+        panel.add(new JLabel("Fecha fin (YYYY-MM-DD):"));
+        panel.add(txtFin);
 
-    panel.add(new JLabel("Fecha fin (YYYY-MM-DD):"));
-    panel.add(txtFin);
+        int result = JOptionPane.showConfirmDialog(
+            null, panel, "Registrar campaña",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
+        );
 
-    int result = JOptionPane.showConfirmDialog(
-        null, panel, "Registrar campaña",
-        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE
-    );
-
-    if (result == JOptionPane.OK_OPTION) {
-        registrarCampaña(
+        if (result == JOptionPane.OK_OPTION) {
+            registrarCampaña(
                 txtNombre.getText(),
                 txtDescuento.getText(),
                 txtInicio.getText(),
                 txtFin.getText()
-        );
+            );
+        }
     }
-}
+
     private void registrarCampaña(String nombre, String descuento, String inicio, String fin) {
-    String query = "INSERT INTO CAMPAÑA_DESCUENTO(nombre, fecha_inicio, fecha_fin, descuento) VALUES (?,?,?,?)";
+        // CORREGIDO: tabla en minúsculas sin ñ
+        String query = "INSERT INTO campana_descuento(nombre, fecha_inicio, fecha_fin, descuento) VALUES (?,?,?,?)";
 
-    try (Connection conn = ConexionSQLServer.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query)) {
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        stmt.setString(1, nombre);
-        stmt.setDate(2, java.sql.Date.valueOf(inicio));
-        stmt.setDate(3, java.sql.Date.valueOf(fin));
-        stmt.setDouble(4, Double.parseDouble(descuento));
+            stmt.setString(1, nombre);
+            stmt.setDate(2, java.sql.Date.valueOf(inicio));
+            stmt.setDate(3, java.sql.Date.valueOf(fin));
+            stmt.setDouble(4, Double.parseDouble(descuento));
 
-        stmt.executeUpdate();
-        JOptionPane.showMessageDialog(null, "Campaña registrada correctamente.");
+            stmt.executeUpdate();
+            JOptionPane.showMessageDialog(null, "Campaña registrada correctamente.");
 
-    } catch (SQLException ex) {
-        JOptionPane.showMessageDialog(null, "Error al registrar campaña: " + ex.getMessage());
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error al registrar campaña: " + ex.getMessage());
+        }
     }
-}
     
     private JButton crearBoton(String texto, Color color) {
         JButton boton = new JButton(texto);
@@ -195,84 +196,87 @@ public class VentanaGestionProductos extends JFrame {
     }
     
     public void cargarDatosTabla() {
-    String query = "SELECT * FROM producto WHERE activo = 1";
+        String query = "SELECT * FROM producto WHERE activo = 1";
 
-    try (Connection con = ConexionSQLServer.getConnection(); 
-         PreparedStatement ps = con.prepareStatement(query); 
-         ResultSet rs = ps.executeQuery()) {
+        try (Connection con = ConexionSQLServer.getConnection();
+             PreparedStatement ps = con.prepareStatement(query);
+             ResultSet rs = ps.executeQuery()) {
 
-        if (listaProductos == null) {
-            listaProductos = new ArrayList<>();
+            if (listaProductos == null) {
+                listaProductos = new ArrayList<>();
+            }
+            listaProductos.clear();
+            modeloTabla.setRowCount(0);
+
+            while (rs.next()) {
+                int id_producto = rs.getInt("id_producto");
+                String nombre = rs.getString("nombre");
+                String categoria = rs.getString("categoria");
+                double precio = rs.getDouble("precio");
+                int stock = rs.getInt("stock");
+
+                Producto producto = new Producto(id_producto, nombre, precio, categoria, "", stock);
+                listaProductos.add(producto);
+
+                Object[] fila = {
+                    nombre,
+                    String.format("%.2f", precio),
+                    categoria,
+                    stock
+                };
+                modeloTabla.addRow(fila);
+            }
+            
+            if (ventanaPrincipal != null) {
+                ventanaPrincipal.mostrarProductos("Todos los Productos");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al cargar los productos desde la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-        modeloTabla.setRowCount(0);  
-
-        while (rs.next()) {
-            int id_producto = rs.getInt("id_producto");
-            String nombre = rs.getString("nombre");
-            String categoria = rs.getString("categoria");
-            double precio = rs.getDouble("precio");
-            int stock = rs.getInt("stock");
-
-            Producto producto = new Producto(id_producto,nombre, precio, categoria, "", stock);
-            listaProductos.add(producto);
-
-            Object[] fila = {
-                nombre,
-                String.format("%.2f", precio),
-                categoria,
-                stock
-            };
-            modeloTabla.addRow(fila);
-        }
-        
-        if (ventanaPrincipal != null) {
-            ventanaPrincipal.mostrarProductos("Todos los Productos");
-        }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al cargar los productos desde la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
     
     private void buscarProducto(String nombreProducto) {
-    if (nombreProducto.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor ingresa el nombre del producto.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
+        if (nombreProducto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor ingresa el nombre del producto.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-    String query = "SELECT * FROM producto WHERE nombres LIKE ? AND activo = 1";
+        // CORREGIDO: nombre en lugar de nombres
+        String query = "SELECT * FROM producto WHERE nombre LIKE ? AND activo = 1";
 
-    try (Connection con = ConexionSQLServer.getConnection(); 
-         PreparedStatement ps = con.prepareStatement(query)) {
+        try (Connection con = ConexionSQLServer.getConnection();
+             PreparedStatement ps = con.prepareStatement(query)) {
 
-        ps.setString(1, "%" + nombreProducto + "%"); 
+            ps.setString(1, "%" + nombreProducto + "%");
 
-        ResultSet rs = ps.executeQuery();
+            ResultSet rs = ps.executeQuery();
 
-        modeloTabla.setRowCount(0);  
+            modeloTabla.setRowCount(0);
 
-        while (rs.next()) {
-            String nombre = rs.getString("nombre");
-            double precio = rs.getDouble("precio");
-            String categoria = rs.getString("categoria");
-            int stock = rs.getInt("stock");
+            while (rs.next()) {
+                String nombre = rs.getString("nombre");
+                double precio = rs.getDouble("precio");
+                String categoria = rs.getString("categoria");
+                int stock = rs.getInt("stock");
 
             
-            Object[] fila = {
-                nombre,
-                String.format("%.2f", precio),
-                categoria,
-                stock
-            };
+                Object[] fila = {
+                    nombre,
+                    String.format("%.2f", precio),
+                    categoria,
+                    stock
+                };
 
-            modeloTabla.addRow(fila);  
+                modeloTabla.addRow(fila);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al buscar el producto", "Error", JOptionPane.ERROR_MESSAGE);
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al buscar el producto", "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
+
     private void agregarProducto() {
         JPanel panel = new JPanel(new GridLayout(5, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -293,7 +297,7 @@ public class VentanaGestionProductos extends JFrame {
         panel.add(new JLabel("Stock:"));
         panel.add(txtStock);
 
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Agregar Nuevo Producto", 
+        int resultado = JOptionPane.showConfirmDialog(this, panel, "Agregar Nuevo Producto",
                 JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
         if (resultado == JOptionPane.OK_OPTION) {
@@ -309,20 +313,20 @@ public class VentanaGestionProductos extends JFrame {
                     return;
                 }
 
-                String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-                String query = "SELECT COUNT(*) FROM producto WHERE nombre = ?";  
+                // CORREGIDO: usar ConexionSQLServer en lugar de conexión directa a SQL Server
+                String query = "SELECT COUNT(*) FROM producto WHERE nombre = ?";
 
-                try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+                try (Connection conn = ConexionSQLServer.getConnection();
                      PreparedStatement stmt = conn.prepareStatement(query)) {
 
-                    stmt.setString(1, nombre); 
+                    stmt.setString(1, nombre);
 
                     ResultSet rs = stmt.executeQuery();
                     if (rs.next()) {
                         int count = rs.getInt(1);
                         if (count > 0) {
                             JOptionPane.showMessageDialog(this, "Ya existe un producto con el mismo nombre.", "Error", JOptionPane.ERROR_MESSAGE);
-                            return;  
+                            return;
                         }
                     }
 
@@ -331,7 +335,7 @@ public class VentanaGestionProductos extends JFrame {
 
                     try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
                         insertStmt.setString(1, nombre);
-                        insertStmt.setString(2, categoria); 
+                        insertStmt.setString(2, categoria);
                         insertStmt.setDouble(3, precio);
                         insertStmt.setDouble(4, 0);
                         insertStmt.setInt(5, stock);
@@ -339,7 +343,7 @@ public class VentanaGestionProductos extends JFrame {
                         int filasAfectadas = insertStmt.executeUpdate();
                         if (filasAfectadas > 0) {
                             JOptionPane.showMessageDialog(this, "Producto agregado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                            cargarDatosTabla(); 
+                            cargarDatosTabla();
                             ventanaPrincipal.mostrarProductos("Todos los Productos");
                         } else {
                             JOptionPane.showMessageDialog(this, "Error al agregar el producto", "Error", JOptionPane.ERROR_MESSAGE);
@@ -358,137 +362,136 @@ public class VentanaGestionProductos extends JFrame {
         }
     }
 
-    
-   private void editarProducto() {
-    int filaSeleccionada = tablaProductos.getSelectedRow();
+    private void editarProducto() {
+        int filaSeleccionada = tablaProductos.getSelectedRow();
 
-    if (filaSeleccionada == -1) {
-        JOptionPane.showMessageDialog(this, "Por favor, selecciona un producto para editar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-    String nombreProducto = (String) modeloTabla.getValueAt(filaSeleccionada, 0);
-    String categoriaProducto = (String) modeloTabla.getValueAt(filaSeleccionada, 2);
-    String precioStr = (String) modeloTabla.getValueAt(filaSeleccionada, 1);
-    int stockProducto = (int) modeloTabla.getValueAt(filaSeleccionada, 3);
-    precioStr = precioStr.replace(",", ".");
-    double precioProducto = 0;
-    try {
-        precioProducto = Double.parseDouble(precioStr);
-    } catch (NumberFormatException e) {
-        JOptionPane.showMessageDialog(this, "El precio ingresado no es válido", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor, selecciona un producto para editar.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
-    JPanel panelEditar = new JPanel(new GridLayout(5, 2, 10, 10));
-    panelEditar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-    JTextField txtNombre = new JTextField(nombreProducto);
-    JTextField txtPrecio = new JTextField(String.valueOf(precioProducto));
-    JTextField txtStock = new JTextField(String.valueOf(stockProducto));
-
-    String[] categorias = {"Libros", "Cuadernos", "Escritura", "Mochilas", "Geometría", "Arte", "Oficina", "Útiles"};
-    JComboBox<String> cmbCategoria = new JComboBox<>(categorias);
-    cmbCategoria.setSelectedItem(categoriaProducto);
-
-    panelEditar.add(new JLabel("Nombre del Producto:"));
-    panelEditar.add(txtNombre);
-    panelEditar.add(new JLabel("Precio (S/):"));
-    panelEditar.add(txtPrecio);
-    panelEditar.add(new JLabel("Categoría:"));
-    panelEditar.add(cmbCategoria);
-    panelEditar.add(new JLabel("Stock:"));
-    panelEditar.add(txtStock);
-
-    int resultado = JOptionPane.showConfirmDialog(this, panelEditar, "Editar Producto", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-    if (resultado == JOptionPane.OK_OPTION) {
-        String nuevoNombre = txtNombre.getText().trim();
-        String nuevoPrecioStr = txtPrecio.getText().trim().replace(",", ".");
-        double nuevoPrecio = 0;
+        String nombreProducto = (String) modeloTabla.getValueAt(filaSeleccionada, 0);
+        String categoriaProducto = (String) modeloTabla.getValueAt(filaSeleccionada, 2);
+        String precioStr = (String) modeloTabla.getValueAt(filaSeleccionada, 1);
+        int stockProducto = (int) modeloTabla.getValueAt(filaSeleccionada, 3);
+        precioStr = precioStr.replace(",", ".");
+        double precioProducto = 0;
         try {
-            nuevoPrecio = Double.parseDouble(nuevoPrecioStr);
+            precioProducto = Double.parseDouble(precioStr);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(this, "El precio debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "El precio ingresado no es válido", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        String nuevaCategoria = (String) cmbCategoria.getSelectedItem();
-        int nuevoStock = Integer.parseInt(txtStock.getText().trim());
+        JPanel panelEditar = new JPanel(new GridLayout(5, 2, 10, 10));
+        panelEditar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        if (nuevoNombre.isEmpty() || nuevoPrecio <= 0 || nuevoStock <= 0) {
-            JOptionPane.showMessageDialog(this, "Todos los campos deben ser válidos", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        JTextField txtNombre = new JTextField(nombreProducto);
+        JTextField txtPrecio = new JTextField(String.valueOf(precioProducto));
+        JTextField txtStock = new JTextField(String.valueOf(stockProducto));
 
-        String query = "UPDATE producto SET nombre = ?, categoria = ?, precio = ?, stock = ? WHERE nombre = ?";
+        String[] categorias = {"Libros", "Cuadernos", "Escritura", "Mochilas", "Geometría", "Arte", "Oficina", "Útiles"};
+        JComboBox<String> cmbCategoria = new JComboBox<>(categorias);
+        cmbCategoria.setSelectedItem(categoriaProducto);
 
-        try (Connection con = ConexionSQLServer.getConnection(); 
-             PreparedStatement ps = con.prepareStatement(query)) {
+        panelEditar.add(new JLabel("Nombre del Producto:"));
+        panelEditar.add(txtNombre);
+        panelEditar.add(new JLabel("Precio (S/):"));
+        panelEditar.add(txtPrecio);
+        panelEditar.add(new JLabel("Categoría:"));
+        panelEditar.add(cmbCategoria);
+        panelEditar.add(new JLabel("Stock:"));
+        panelEditar.add(txtStock);
 
-            ps.setString(1, nuevoNombre);
-            ps.setString(2, nuevaCategoria);
-            ps.setDouble(3, nuevoPrecio);
-            ps.setInt(4, nuevoStock);
-            ps.setString(5, nombreProducto);
-            int filasAfectadas = ps.executeUpdate();
+        int resultado = JOptionPane.showConfirmDialog(this, panelEditar, "Editar Producto", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 
-            if (filasAfectadas > 0) {
-                JOptionPane.showMessageDialog(this, "Producto actualizado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-
-                cargarDatosTabla();
-            } else {
-                JOptionPane.showMessageDialog(this, "Error al actualizar el producto", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-}
-    
-private void eliminarProducto() {
-    int filaSeleccionada = tablaProductos.getSelectedRow();
-
-    if (filaSeleccionada == -1) {
-        JOptionPane.showMessageDialog(this, "Por favor, selecciona un producto de la tabla", "Advertencia", JOptionPane.WARNING_MESSAGE);
-        return;
-    }
-
-    Producto productoEliminar = listaProductos.get(filaSeleccionada);
-
-    String verificarUso = "SELECT COUNT(*) FROM productos_vendidos WHERE id_producto = ?";
-    String eliminarProducto = "DELETE FROM producto WHERE id_producto = ?";
-
-    try (Connection con = ConexionSQLServer.getConnection()) {
-
-        try (PreparedStatement psVerificar = con.prepareStatement(verificarUso)) {
-            psVerificar.setInt(1, productoEliminar.getIdProducto());
-            ResultSet rs = psVerificar.executeQuery();
-            rs.next();
-
-            int cantidadUsos = rs.getInt(1);
-
-            if (cantidadUsos > 0) {
-                JOptionPane.showMessageDialog(this,
-                        "❗ No se puede eliminar este producto.\nEstá registrado en ventas.",
-                        "Error", JOptionPane.ERROR_MESSAGE);
+        if (resultado == JOptionPane.OK_OPTION) {
+            String nuevoNombre = txtNombre.getText().trim();
+            String nuevoPrecioStr = txtPrecio.getText().trim().replace(",", ".");
+            double nuevoPrecio = 0;
+            try {
+                nuevoPrecio = Double.parseDouble(nuevoPrecioStr);
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "El precio debe ser un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        }
 
-        try (PreparedStatement psEliminar = con.prepareStatement(eliminarProducto)) {
-            psEliminar.setInt(1, productoEliminar.getIdProducto());
+            String nuevaCategoria = (String) cmbCategoria.getSelectedItem();
+            int nuevoStock = Integer.parseInt(txtStock.getText().trim());
 
-            int filas = psEliminar.executeUpdate();
-            if (filas > 0) {
-                JOptionPane.showMessageDialog(this, "Producto eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                cargarDatosTabla();
+            if (nuevoNombre.isEmpty() || nuevoPrecio <= 0 || nuevoStock <= 0) {
+                JOptionPane.showMessageDialog(this, "Todos los campos deben ser válidos", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String query = "UPDATE producto SET nombre = ?, categoria = ?, precio = ?, stock = ? WHERE nombre = ?";
+
+            try (Connection con = ConexionSQLServer.getConnection();
+                 PreparedStatement ps = con.prepareStatement(query)) {
+
+                ps.setString(1, nuevoNombre);
+                ps.setString(2, nuevaCategoria);
+                ps.setDouble(3, nuevoPrecio);
+                ps.setInt(4, nuevoStock);
+                ps.setString(5, nombreProducto);
+                int filasAfectadas = ps.executeUpdate();
+
+                if (filasAfectadas > 0) {
+                    JOptionPane.showMessageDialog(this, "Producto actualizado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    cargarDatosTabla();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Error al actualizar el producto", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error en la base de datos", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al eliminar el producto", "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
+    
+    private void eliminarProducto() {
+        int filaSeleccionada = tablaProductos.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor, selecciona un producto de la tabla", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        Producto productoEliminar = listaProductos.get(filaSeleccionada);
+
+        String verificarUso = "SELECT COUNT(*) FROM productos_vendidos WHERE id_producto = ?";
+        String eliminarProducto = "DELETE FROM producto WHERE id_producto = ?";
+
+        try (Connection con = ConexionSQLServer.getConnection()) {
+
+            try (PreparedStatement psVerificar = con.prepareStatement(verificarUso)) {
+                psVerificar.setInt(1, productoEliminar.getIdProducto());
+                ResultSet rs = psVerificar.executeQuery();
+                rs.next();
+
+                int cantidadUsos = rs.getInt(1);
+
+                if (cantidadUsos > 0) {
+                    JOptionPane.showMessageDialog(this,
+                            "❗ No se puede eliminar este producto.\nEstá registrado en ventas.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            try (PreparedStatement psEliminar = con.prepareStatement(eliminarProducto)) {
+                psEliminar.setInt(1, productoEliminar.getIdProducto());
+
+                int filas = psEliminar.executeUpdate();
+                if (filas > 0) {
+                    JOptionPane.showMessageDialog(this, "Producto eliminado correctamente", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    cargarDatosTabla();
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al eliminar el producto", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }

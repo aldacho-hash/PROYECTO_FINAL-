@@ -43,7 +43,26 @@ public class Sistema extends javax.swing.JFrame {
     btnBuscarCliente.addActionListener(e -> clientesRegistrados(txtBuscarCliente.getText().trim()));
     btnBuscarEmpleado.addActionListener(e -> empleadosRegistrados(txtBuscarEmpleado.getText().trim()));
     btnBuscarHistorialVentas.addActionListener(e -> buscarCliente(txtHistorialVentas.getText().trim()));
+    
+    txtHistorialVentas.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+    @Override
+    public void insertUpdate(javax.swing.event.DocumentEvent e) {}
+    @Override
+    public void removeUpdate(javax.swing.event.DocumentEvent e) {
+        if (txtHistorialVentas.getText().trim().isEmpty()) {
+            cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
+        }
+    }
+    @Override
+    public void changedUpdate(javax.swing.event.DocumentEvent e) {}
+});
     btnGestionProductos.addActionListener(e -> abrirGestionProductos());
+    
+    pnlPrincipal.addChangeListener(e -> {
+    cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
+    cargarClientesEnTabla((DefaultTableModel) tblClientes.getModel());
+    cargarEmpleadosEnTabla((DefaultTableModel) tblEmpleados.getModel());
+});
 
     cargarEmpleadosEnTabla(modelEmpleados);
     cargarClientesEnTabla(modelClientes);
@@ -63,22 +82,28 @@ public class Sistema extends javax.swing.JFrame {
 
     String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
                    "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, v.fecha " +
-                   "FROM VENTAS v " +
-                   "INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente " +
-                   "INNER JOIN PRODUCTOS_VENDIDOS pv ON v.id_venta = pv.id_venta " +
-                   "INNER JOIN PRODUCTO p ON pv.id_producto = p.id_producto " +
-                   "WHERE c.nombre LIKE ? " + 
+                   "FROM ventas v " +
+                   "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+                   "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
+                   "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
+                   "WHERE c.nombres LIKE ? OR c.apellidos LIKE ? OR p.nombre LIKE ? " + 
                    "ORDER BY v.fecha DESC";  
 
     try (Connection conn = ConexionSQLServer.getConnection(); 
          PreparedStatement ps = conn.prepareStatement(query)) {
 
-        ps.setString(1, "%" + nombreCliente + "%");  
-
+        ps.setString(1, "%" + nombreCliente + "%");
+        ps.setString(2, "%" + nombreCliente + "%");
+        ps.setString(3, "%" + nombreCliente + "%");
         ResultSet rs = ps.executeQuery();
 
         DefaultTableModel modelVentas = (DefaultTableModel) tblHistorialVentas.getModel();
-        modelVentas.setRowCount(0);  
+        modelVentas.setRowCount(0);
+        if (!rs.isBeforeFirst()) {
+        cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
+        JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
+        return;
+}
 
        
         while (rs.next()) {
@@ -107,8 +132,8 @@ public class Sistema extends javax.swing.JFrame {
     }
 
     String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, direccion, telefono " +
-                   "FROM CLIENTE " +
-                   "WHERE nombre LIKE ? OR apellidos LIKE ?"; 
+                   "FROM cliente " +
+                   "WHERE nombres LIKE ? OR apellidos LIKE ?"; 
 
     try (Connection conn = ConexionSQLServer.getConnection(); 
          PreparedStatement ps = conn.prepareStatement(query)) {
@@ -146,8 +171,8 @@ public class Sistema extends javax.swing.JFrame {
         return;
     }
 
-    String query = "SELECT id_empleado, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo,fecha_nacimiento, direccion, telefono " +
-                   "FROM EMPLEADO " +
+    String query = "SELECT empleado_id, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo_electronico,fecha_nacimiento, direccion, telefono " +
+                   "FROM empleado    " +
                    "WHERE nombres LIKE ? OR apellidos LIKE ?";  
 
     try (Connection conn = ConexionSQLServer.getConnection(); 
@@ -163,10 +188,10 @@ public class Sistema extends javax.swing.JFrame {
 
        
         while (rs.next()) {
-            int idEmpleado = rs.getInt("id_empleado");
+            int idEmpleado = rs.getInt("empleado_id");
             String nombreCompleto = rs.getString("nombre_completo");
             String dni = rs.getString("dni");
-            String correo = rs.getString("correo");
+            String correo = rs.getString("correo_electronico");
             String fecha_nacimiento = rs.getString("fecha_nacimiento");
             String direccion = rs.getString("direccion");
             String telefono = rs.getString("telefono");
@@ -184,20 +209,19 @@ public class Sistema extends javax.swing.JFrame {
     
     
     private void cargarEmpleadosEnTabla(DefaultTableModel tableModel) {
-    String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
-    String query = "SELECT id_empleado, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, fecha_nacimiento, direccion, telefono FROM EMPLEADO";
+    String query = "SELECT empleado_id, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo_electronico, fecha_nacimiento, direccion, telefono FROM empleado";
     
-    try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+    try (Connection conn = ConexionSQLServer.getConnection();
          PreparedStatement stmt = conn.prepareStatement(query);
          ResultSet rs = stmt.executeQuery()) {
 
         tableModel.setRowCount(0);
 
         while (rs.next()) {
-            int idEmpleado = rs.getInt("id_empleado");
+            int idEmpleado = rs.getInt("empleado_id");
             String nombre = rs.getString("nombre_completo");
             String dni = rs.getString("dni");
-            String correo = rs.getString("correo");
+            String correo = rs.getString("correo_electronico");
             String fecha_nacimiento = rs.getString("fecha_nacimiento");
             String direccion = rs.getString("direccion");
             String telefono = rs.getString("telefono");
@@ -210,11 +234,10 @@ public class Sistema extends javax.swing.JFrame {
     }
 }
    
-   private void cargarClientesEnTabla(DefaultTableModel tableModel) {
-    String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
-    String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni,correo, direccion, telefono FROM CLIENTE";
+  private void cargarClientesEnTabla(DefaultTableModel tableModel) {
+    String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, direccion, telefono FROM cliente";
     
-    try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+    try (Connection conn = ConexionSQLServer.getConnection();
          PreparedStatement stmt = conn.prepareStatement(query);
          ResultSet rs = stmt.executeQuery()) {
 
@@ -231,24 +254,22 @@ public class Sistema extends javax.swing.JFrame {
             tableModel.addRow(new Object[]{idCliente, nombreCompleto, dni, correo, direccion, telefono});
         }
     } catch (SQLException e) {
-        e.printStackTrace();
-        System.out.println("Error al cargar los clientes: " + e.getMessage());
-    }
+    e.printStackTrace();
+    JOptionPane.showMessageDialog(this, "Error clientes: " + e.getMessage());
+}
 }
    
-  private void cargarVentasEnTabla(DefaultTableModel tableModel) {
-    String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
-    String query = "SELECT v.id_venta, CONCAT(c.nombre, ' ', c.apellidos) AS cliente, " +
+private void cargarVentasEnTabla(DefaultTableModel tableModel) {
+    String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
                    "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, v.fecha " +
-                   "FROM VENTAS v " +
-                   "INNER JOIN CLIENTE c ON v.id_cliente = c.id_cliente " +
-                   "INNER JOIN PRODUCTOS_VENDIDOS pv ON v.id_venta = pv.id_venta " +
-                   "INNER JOIN PRODUCTO p ON pv.id_producto = p.id_producto " +
+                   "FROM ventas v " +
+                   "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+                   "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
+                   "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
                    "ORDER BY v.fecha DESC";
-
-    try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+    try (Connection conn = ConexionSQLServer.getConnection();
          PreparedStatement stmt = conn.prepareStatement(query);
-         ResultSet rs = stmt.executeQuery()) {
+         ResultSet rs = stmt.executeQuery()) {  
 
         tableModel.setRowCount(0);  
 

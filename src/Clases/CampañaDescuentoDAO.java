@@ -1,5 +1,4 @@
 package Clases;
-
 import conexiondb.ConexionSQLServer;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -8,10 +7,11 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 
 public class CampañaDescuentoDAO {
+
     public boolean insertarCampaña(CampañaDescuento camp) {
-        String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-        String query = "INSERT INTO CAMPAÑA_DESCUENTO (nombre, fecha_inicio, fecha_fin, descuento) VALUES (?, ?, ?, ?)";
-         try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+        String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+        String query = "INSERT INTO campana_descuento (nombre, fecha_inicio, fecha_fin, descuento) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, camp.getNombre());
             stmt.setDate(2, java.sql.Date.valueOf(camp.getInicio()));
@@ -26,12 +26,12 @@ public class CampañaDescuentoDAO {
         return false;
         
     }
-        public CampañaDescuento obtenerCampañaActiva() {
+
+    public CampañaDescuento obtenerCampañaActiva() {
         String query =
             "SELECT nombre, fecha_inicio, fecha_fin, descuento " +
-            "FROM CAMPAÑA_DESCUENTO " +
-            "WHERE fecha_inicio <= GETDATE() AND fecha_fin >= GETDATE()";
-
+            "FROM campana_descuento " +
+            "WHERE fecha_inicio <= CURDATE() AND fecha_fin >= CURDATE()";
         try (Connection conn = ConexionSQLServer.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -49,14 +49,13 @@ public class CampañaDescuentoDAO {
             e.printStackTrace();
         }
 
-        return null; 
+        return null;
     }
 
     public double obtenerDescuentoActivo() {
         String query =
-            "SELECT descuento FROM CAMPAÑA_DESCUENTO " +
-            "WHERE fecha_inicio <= GETDATE() AND fecha_fin >= GETDATE()";
-
+            "SELECT descuento FROM campana_descuento " +
+            "WHERE fecha_inicio <= CURDATE() AND fecha_fin >= CURDATE()";
         try (Connection conn = ConexionSQLServer.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
 

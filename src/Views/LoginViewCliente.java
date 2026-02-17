@@ -29,18 +29,19 @@ public class LoginViewCliente extends javax.swing.JFrame {
 public boolean verificarCredenciales(String usuario, String contraseña, String tipoUsuario) {
     boolean autenticado = false;
     try {
-        Connection con = DriverManager.getConnection("jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO", "lucianoadm", "hilario123");
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC", "root", "carranza15");
 
         String query = "";
         if (tipoUsuario.equals("cliente")) {
-            query = "SELECT * FROM CLIENTE WHERE usuario = ? AND contraseña = ?";
+            query = "SELECT * FROM cliente WHERE (usuario = ? OR correo = ?) AND contrasena = ?";
         } else if (tipoUsuario.equals("empleado")) {
-            query = "SELECT * FROM EMPLEADO WHERE usuario = ? AND contraseña = ?";
+            query = "SELECT * FROM empleado WHERE (usuario = ? OR correo = ?) AND contrasena = ?";
         }
 
         PreparedStatement stmt = con.prepareStatement(query);
         stmt.setString(1, usuario);
-        stmt.setString(2, contraseña);
+        stmt.setString(2, usuario);
+        stmt.setString(3, contraseña);
         ResultSet rs = stmt.executeQuery();
 
         if (rs.next()) {

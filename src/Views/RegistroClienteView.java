@@ -43,14 +43,14 @@ public class RegistroClienteView extends javax.swing.JFrame {
         insertarUsuario(usuario, contraseña, correo);
     }
     
-   private void insertarUsuario(String usuario, String contraseña, String correo) {
-            String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-        String query = "INSERT INTO usuarios (usuario, contraseña, email, tipo_usuario) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+   private void insertarUsuario(String usuario, String contrasena, String correo) {
+            String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+        String query = "INSERT INTO usuarios (usuario, contrasena, email, tipo_usuario) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, usuario);
-            stmt.setString(2, contraseña);  
+            stmt.setString(2, contrasena);  
             stmt.setString(3, correo);
             stmt.setString(4, "cliente"); 
 
@@ -63,10 +63,10 @@ public class RegistroClienteView extends javax.swing.JFrame {
    
        private void insertarCliente(String nombre, String apellidos, String dni, String correo, String fechaNacimiento, String telefono, String direccion, String usuario, String contraseña
                 ) {
-        String connectionString = "jdbc:sqlserver://localhost:1433;databaseName=BD_TPOO;encrypt=false";
-        String query = "INSERT INTO cliente (nombre, apellidos, dni, correo, fecha_nacimiento, telefono, direccion, usuario, contraseña) "
+        String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
+        String query = "INSERT INTO cliente (nombress, apellidos, dni, correo, fecha_nacimiento, telefono, direccion, usuario, contrasena) "
                      + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DriverManager.getConnection(connectionString, "lucianoadm", "hilario123");
+        try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
             stmt.setString(1, nombre);
