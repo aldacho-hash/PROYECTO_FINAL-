@@ -10,7 +10,6 @@ public class PanelProducto extends JPanel {
     private JLabel lblImagen;
     private JLabel lblNombre;
     private JLabel lblPrecio;
-    private JLabel lblStock;
     
     public PanelProducto(Producto producto) {
         this.producto = producto;
@@ -19,13 +18,14 @@ public class PanelProducto extends JPanel {
     
     private void initComponents() {
         setLayout(new BorderLayout(5, 5));
-        setPreferredSize(new Dimension(200, 280));
+        setPreferredSize(new Dimension(200, 300));
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
             BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
         
+        // Imagen / Emoji del producto
         lblImagen = new JLabel();
         lblImagen.setPreferredSize(new Dimension(180, 150));
         lblImagen.setHorizontalAlignment(SwingConstants.CENTER);
@@ -42,26 +42,45 @@ public class PanelProducto extends JPanel {
         panelInfo.setLayout(new BoxLayout(panelInfo, BoxLayout.Y_AXIS));
         panelInfo.setBackground(Color.WHITE);
         
-        lblNombre = new JLabel(producto.getNombre());
-        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        // Nombre del producto
+        lblNombre = new JLabel("<html><body style='width:170px'>" + producto.getNombre() + "</body></html>");
+        lblNombre.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblNombre.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        // Valoración con estrellas (fija en 4.5 por defecto)
+        JLabel lblEstrellas = new JLabel("⭐⭐⭐⭐⭐");
+        lblEstrellas.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 12));
+        lblEstrellas.setAlignmentX(Component.LEFT_ALIGNMENT);
         
+        // Precio
         lblPrecio = new JLabel("S/ " + String.format("%.2f", producto.getPrecio()));
         lblPrecio.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblPrecio.setForeground(new Color(200, 50, 50));
         lblPrecio.setAlignmentX(Component.LEFT_ALIGNMENT);
         
-        lblStock = new JLabel("Stock: " + producto.getStock());
-        lblStock.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        lblStock.setForeground(new Color(100, 100, 100));
-        lblStock.setAlignmentX(Component.LEFT_ALIGNMENT);
-        
         panelInfo.add(Box.createVerticalStrut(5));
         panelInfo.add(lblNombre);
+        panelInfo.add(Box.createVerticalStrut(3));
+        panelInfo.add(lblEstrellas);
         panelInfo.add(Box.createVerticalStrut(5));
         panelInfo.add(lblPrecio);
         panelInfo.add(Box.createVerticalStrut(3));
-        panelInfo.add(lblStock);
+
+        // Mostrar alerta de stock bajo si hay menos de 5 unidades
+        // NO se muestra el número de stock al cliente, solo la alerta
+        if (producto.getStock() < 5 && producto.getStock() > 0) {
+            JLabel lblStockBajo = new JLabel("⚠ ¡Últimas " + producto.getStock() + " unidades!");
+            lblStockBajo.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            lblStockBajo.setForeground(new Color(200, 50, 50));
+            lblStockBajo.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panelInfo.add(lblStockBajo);
+        } else if (producto.getStock() == 0) {
+            JLabel lblAgotado = new JLabel("❌ Producto agotado");
+            lblAgotado.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            lblAgotado.setForeground(Color.GRAY);
+            lblAgotado.setAlignmentX(Component.LEFT_ALIGNMENT);
+            panelInfo.add(lblAgotado);
+        }
         
         add(panelInfo, BorderLayout.CENTER);
         

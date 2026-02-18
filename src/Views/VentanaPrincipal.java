@@ -1061,12 +1061,7 @@ public class VentanaPrincipal extends JFrame {
         }
     }
     
-    // =====================================================================
-    // MÉTODO verCarrito() MODIFICADO:
-    // - Columna "Eliminar" REMOVIDA de la tabla
-    // - Botón "🗑 Eliminar Seleccionado" agregado junto a "💳 Comprar"
-    // - Para eliminar: selecciona una fila y presiona el botón Eliminar
-    // =====================================================================
+    
     private void verCarrito() {
         if (carrito.isEmpty()) {
             JOptionPane.showMessageDialog(this, "El carrito está vacío.", "Carrito Vacío", JOptionPane.INFORMATION_MESSAGE);

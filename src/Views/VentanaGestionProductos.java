@@ -4,10 +4,10 @@ import Modelos.Producto;
 import conexiondb.ConexionSQLServer;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
@@ -20,6 +20,10 @@ public class VentanaGestionProductos extends JFrame {
     private JButton btnAgregar, btnEditar, btnEliminar, btnAgregarCampaña;
     private List<Producto> listaProductos;
     private final VentanaPrincipal ventanaPrincipal;
+    private JTextField txtBuscar;
+    
+    // Stock mínimo configurado en 5
+    private static final int STOCK_MINIMO = 5;
 
     public VentanaGestionProductos(VentanaPrincipal ventanaPrincipal) {
         this.ventanaPrincipal = ventanaPrincipal;
@@ -50,7 +54,7 @@ public class VentanaGestionProductos extends JFrame {
 
         getContentPane().setBackground(Color.WHITE);
 
-        JTextField txtBuscar = new JTextField(20);
+        txtBuscar = new JTextField(20);
         JButton btnBuscar = new JButton("Buscar Producto");
         btnBuscar.setBackground(new Color(40, 167, 69));
         btnBuscar.setForeground(Color.WHITE);
@@ -58,12 +62,30 @@ public class VentanaGestionProductos extends JFrame {
 
         btnBuscar.addActionListener(e -> buscarProducto(txtBuscar.getText().trim()));
 
+        txtBuscar.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {}
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                if (txtBuscar.getText().trim().isEmpty()) {
+                    cargarDatosTabla();
+                }
+            }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {}
+        });
+
+        tablaProductos.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (txtBuscar.getText().trim().isEmpty()) {
+                    cargarDatosTabla();
+                }
+            }
+        });
+
         JPanel panelBusqueda = new JPanel();
         panelBusqueda.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
         panelBusqueda.add(new JLabel("Buscar Producto:"));
         panelBusqueda.add(txtBuscar);
         panelBusqueda.add(btnBuscar);
-
 
         add(panelBusqueda, BorderLayout.NORTH);
     }
@@ -83,6 +105,29 @@ public class VentanaGestionProductos extends JFrame {
         tablaProductos.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         tablaProductos.getTableHeader().setBackground(new Color(240, 240, 240));
         tablaProductos.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        
+        // RENDERER para colorear filas con stock bajo en rojo
+        tablaProductos.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                
+                try {
+                    int stock = Integer.parseInt(table.getValueAt(row, 3).toString());
+                    if (stock < STOCK_MINIMO) {
+                        c.setBackground(new Color(255, 150, 150)); // rojo claro
+                        c.setForeground(Color.BLACK);
+                    } else {
+                        c.setBackground(isSelected ? table.getSelectionBackground() : Color.WHITE);
+                        c.setForeground(Color.BLACK);
+                    }
+                } catch (NumberFormatException e) {
+                    c.setBackground(Color.WHITE);
+                }
+                return c;
+            }
+        });
         
         JScrollPane scrollPane = new JScrollPane(tablaProductos);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -109,7 +154,6 @@ public class VentanaGestionProductos extends JFrame {
         panelBotones.add(btnEditar);
         panelBotones.add(btnEliminar);
         panelBotones.add(btnAgregarCampaña);
-
         
         add(panelBotones, BorderLayout.SOUTH);
     }
@@ -117,22 +161,18 @@ public class VentanaGestionProductos extends JFrame {
     private void abrirFormularioCampaña() {
         JTextField txtNombre = new JTextField(20);
         JTextField txtDescuento = new JTextField(5);
-
-        JTextField txtInicio = new JTextField("2025-12-01");
-        JTextField txtFin = new JTextField("2025-12-25");
+        JTextField txtInicio = new JTextField("2026-02-17");
+        JTextField txtFin = new JTextField("2026-12-31");
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         panel.add(new JLabel("Nombre de la campaña:"));
         panel.add(txtNombre);
-
-        panel.add(new JLabel("Descuento (%):"));
+        panel.add(new JLabel("Descuento (%) - solo el número, ej: 10:"));
         panel.add(txtDescuento);
-
         panel.add(new JLabel("Fecha inicio (YYYY-MM-DD):"));
         panel.add(txtInicio);
-
         panel.add(new JLabel("Fecha fin (YYYY-MM-DD):"));
         panel.add(txtFin);
 
@@ -152,8 +192,7 @@ public class VentanaGestionProductos extends JFrame {
     }
 
     private void registrarCampaña(String nombre, String descuento, String inicio, String fin) {
-        // CORREGIDO: tabla en minúsculas sin ñ
-        String query = "INSERT INTO campana_descuento(nombre, fecha_inicio, fecha_fin, descuento) VALUES (?,?,?,?)";
+        String query = "INSERT INTO campana_descuento(nombre, fecha_inicio, fecha_fin, descuento, activo) VALUES (?,?,?,?,?)";
 
         try (Connection conn = ConexionSQLServer.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -161,7 +200,9 @@ public class VentanaGestionProductos extends JFrame {
             stmt.setString(1, nombre);
             stmt.setDate(2, java.sql.Date.valueOf(inicio));
             stmt.setDate(3, java.sql.Date.valueOf(fin));
-            stmt.setDouble(4, Double.parseDouble(descuento));
+            // CORREGIDO: elimina el % si el usuario lo escribe
+            stmt.setDouble(4, Double.parseDouble(descuento.replace("%", "").trim()));
+            stmt.setInt(5, 1);
 
             stmt.executeUpdate();
             JOptionPane.showMessageDialog(null, "Campaña registrada correctamente.");
@@ -208,6 +249,8 @@ public class VentanaGestionProductos extends JFrame {
             listaProductos.clear();
             modeloTabla.setRowCount(0);
 
+            List<String> productosStockBajo = new ArrayList<>();
+
             while (rs.next()) {
                 int id_producto = rs.getInt("id_producto");
                 String nombre = rs.getString("nombre");
@@ -225,8 +268,22 @@ public class VentanaGestionProductos extends JFrame {
                     stock
                 };
                 modeloTabla.addRow(fila);
+
+                // Verificar stock bajo
+                if (stock < STOCK_MINIMO) {
+                    productosStockBajo.add("⚠ " + nombre + " (Stock: " + stock + ")");
+                }
             }
-            
+
+            // Mostrar alerta emergente si hay productos con stock bajo
+            if (!productosStockBajo.isEmpty()) {
+                StringBuilder mensaje = new StringBuilder("⚠️ ALERTA: Los siguientes productos tienen stock bajo (menos de " + STOCK_MINIMO + " unidades):\n\n");
+                for (String prod : productosStockBajo) {
+                    mensaje.append(prod).append("\n");
+                }
+                JOptionPane.showMessageDialog(this, mensaje.toString(), "⚠️ Stock Bajo", JOptionPane.WARNING_MESSAGE);
+            }
+
             if (ventanaPrincipal != null) {
                 ventanaPrincipal.mostrarProductos("Todos los Productos");
             }
@@ -243,17 +300,21 @@ public class VentanaGestionProductos extends JFrame {
             return;
         }
 
-        // CORREGIDO: nombre en lugar de nombres
         String query = "SELECT * FROM producto WHERE nombre LIKE ? AND activo = 1";
 
         try (Connection con = ConexionSQLServer.getConnection();
              PreparedStatement ps = con.prepareStatement(query)) {
 
             ps.setString(1, "%" + nombreProducto + "%");
-
             ResultSet rs = ps.executeQuery();
 
             modeloTabla.setRowCount(0);
+
+            if (!rs.isBeforeFirst()) {
+                cargarDatosTabla();
+                JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
+                return;
+            }
 
             while (rs.next()) {
                 String nombre = rs.getString("nombre");
@@ -261,14 +322,12 @@ public class VentanaGestionProductos extends JFrame {
                 String categoria = rs.getString("categoria");
                 int stock = rs.getInt("stock");
 
-            
                 Object[] fila = {
                     nombre,
                     String.format("%.2f", precio),
                     categoria,
                     stock
                 };
-
                 modeloTabla.addRow(fila);
             }
         } catch (SQLException e) {
@@ -313,15 +372,14 @@ public class VentanaGestionProductos extends JFrame {
                     return;
                 }
 
-                // CORREGIDO: usar ConexionSQLServer en lugar de conexión directa a SQL Server
                 String query = "SELECT COUNT(*) FROM producto WHERE nombre = ?";
 
                 try (Connection conn = ConexionSQLServer.getConnection();
                      PreparedStatement stmt = conn.prepareStatement(query)) {
 
                     stmt.setString(1, nombre);
-
                     ResultSet rs = stmt.executeQuery();
+
                     if (rs.next()) {
                         int count = rs.getInt(1);
                         if (count > 0) {
@@ -330,8 +388,7 @@ public class VentanaGestionProductos extends JFrame {
                         }
                     }
 
-                    String insertQuery = "INSERT INTO producto (nombre, categoria, precio, precio_descuento, stock) "
-                            + "VALUES (?, ?, ?, ?, ?)";
+                    String insertQuery = "INSERT INTO producto (nombre, categoria, precio, precio_descuento, stock) VALUES (?, ?, ?, ?, ?)";
 
                     try (PreparedStatement insertStmt = conn.prepareStatement(insertQuery)) {
                         insertStmt.setString(1, nombre);
