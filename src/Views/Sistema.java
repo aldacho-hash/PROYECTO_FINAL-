@@ -3,12 +3,14 @@ package Views;
 import conexiondb.ConexionSQLServer;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.Time;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+
 
 public class Sistema extends javax.swing.JFrame {
     private String nombreEmpleado;
@@ -33,6 +35,8 @@ public class Sistema extends javax.swing.JFrame {
         modelVentas.addColumn("CANTIDAD");
         modelVentas.addColumn("SUBTOTAL");
         modelVentas.addColumn("FECHA");
+        modelVentas.addColumn("HORA");
+        modelVentas.addColumn("VENDEDOR");
 
         tblHistorialVentas.setModel(modelVentas);
     
@@ -81,13 +85,13 @@ public class Sistema extends javax.swing.JFrame {
     }
 
     String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
-                   "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, v.fecha " +
-                   "FROM ventas v " +
-                   "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
-                   "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
-                   "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
-                   "WHERE c.nombres LIKE ? OR c.apellidos LIKE ? OR p.nombre LIKE ? " + 
-                   "ORDER BY v.fecha DESC";  
+               "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, v.fecha " +
+               "FROM ventas v " +
+               "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+               "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
+               "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
+               "WHERE c.nombres LIKE ? OR c.apellidos LIKE ? OR p.nombre LIKE ? " + 
+               "ORDER BY v.fecha DESC";
 
     try (Connection conn = ConexionSQLServer.getConnection(); 
          PreparedStatement ps = conn.prepareStatement(query)) {
@@ -113,7 +117,8 @@ public class Sistema extends javax.swing.JFrame {
             int cantidad = rs.getInt("cantidad");
             double subtotal = rs.getDouble("subtotal");
             Date fecha = rs.getDate("fecha");
-
+            Time hora = rs.getTime("hora");
+            String vendedor = rs.getString("vendedor");
           
             modelVentas.addRow(new Object[]{cliente, producto,"S/. "+precio, cantidad, subtotal, fecha});
         }
@@ -261,12 +266,15 @@ public class Sistema extends javax.swing.JFrame {
    
 private void cargarVentasEnTabla(DefaultTableModel tableModel) {
     String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
-                   "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, v.fecha " +
-                   "FROM ventas v " +
-                   "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
-                   "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
-                   "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
-                   "ORDER BY v.fecha DESC";
+               "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
+               "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, " +
+               "CONCAT(e.nombres, ' ', e.apellidos) AS vendedor " +
+               "FROM ventas v " +
+               "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+               "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
+               "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
+               "LEFT JOIN empleado e ON v.id_empleado = e.empleado_id " +
+               "ORDER BY v.fecha DESC";
     try (Connection conn = ConexionSQLServer.getConnection();
          PreparedStatement stmt = conn.prepareStatement(query);
          ResultSet rs = stmt.executeQuery()) {  
@@ -280,8 +288,10 @@ private void cargarVentasEnTabla(DefaultTableModel tableModel) {
             int cantidad = rs.getInt("cantidad");
             double subtotal = rs.getDouble("subtotal");
             Date fecha = rs.getDate("fecha");
-
-            tableModel.addRow(new Object[]{cliente, producto, "S/. "+precio, cantidad, subtotal, fecha});
+            Time hora = rs.getTime("hora");
+            String vendedor = rs.getString("vendedor");
+            
+            tableModel.addRow(new Object[]{cliente, producto, "S/. "+precio, cantidad, subtotal, fecha, hora, vendedor});
         }
     } catch (SQLException e) {
         e.printStackTrace();

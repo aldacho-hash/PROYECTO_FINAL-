@@ -61,15 +61,15 @@ public class RegistroClienteView extends javax.swing.JFrame {
         }
     }
    
-       private void insertarCliente(String nombre, String apellidos, String dni, String correo, String fechaNacimiento, String telefono, String direccion, String usuario, String contraseña
+       private void insertarCliente(String nombres, String apellidos, String dni, String correo, String fechaNacimiento, String telefono, String direccion, String usuario, String contraseña
                 ) {
         String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
-        String query = "INSERT INTO cliente (nombress, apellidos, dni, correo, fecha_nacimiento, telefono, direccion, usuario, contrasena) "
+        String query = "INSERT INTO cliente (nombres, apellidos, dni, correo, fecha_nacimiento, telefono, direccion, usuario, contrasena) "
                      + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
-            stmt.setString(1, nombre);
+            stmt.setString(1, nombres);
             stmt.setString(2, apellidos);
             stmt.setString(3, dni);
             stmt.setString(4, correo);

@@ -216,23 +216,36 @@ public boolean verificarCredenciales(String usuario, String contrasena, String t
     }//GEN-LAST:event_txtUsuarioEmpleadoActionPerformed
 
     private void btnEntrarEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarEmpleadoActionPerformed
-   btnEntrarEmpleado.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            String usuario = txtUsuarioEmpleado.getText();
-            String contrasena = new String(txtContraseñaEmpleado.getPassword());
+        String usuario = txtUsuarioEmpleado.getText().trim();
+        String contrasena = new String(txtContraseñaEmpleado.getPassword());
 
-            boolean autenticado = ConexionSQLServer.authenticateEmpleado(usuario, contrasena);
-
-            if (autenticado) {
-                LoginViewEmpleado.this.setVisible(false); 
-                Sistema SistemaFrame = new Sistema(usuario);  
-                SistemaFrame.setVisible(true);
-            } else {
-                JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrectos.");
-            }
+        if (usuario.isEmpty() || usuario.equals("Ingrese su nombre de usuario")) 
+        {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese su usuario.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
         }
-    });
+
+        boolean autenticado = ConexionSQLServer.authenticateEmpleado(usuario, contrasena);
+
+        if (autenticado) 
+        {
+        String cargoEmpleado = obtenerCargoEmpleado(usuario);
+
+        if (cargoEmpleado.isEmpty()) 
+        {
+        JOptionPane.showMessageDialog(this, "No se pudo obtener el cargo.", "Error", JOptionPane.ERROR_MESSAGE);
+        return;
+        }
+
+        LoginViewEmpleado.this.setVisible(false);
+        SeleccionRol seleccion = new SeleccionRol(usuario, cargoEmpleado);
+        seleccion.setVisible(true);
+
+        } 
+        else 
+        {
+    JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }//GEN-LAST:event_btnEntrarEmpleadoActionPerformed
 
     private void btnAtrasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtrasActionPerformed
