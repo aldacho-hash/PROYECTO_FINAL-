@@ -25,7 +25,18 @@ public class LoginViewEmpleado extends javax.swing.JFrame {
     public LoginViewEmpleado() {
         initComponents();
         
-       
+        javax.swing.JButton btnOlvideContrasena = new javax.swing.JButton("¿Olvidaste tu contraseña?");
+        btnOlvideContrasena.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        btnOlvideContrasena.setBorderPainted(false);
+        btnOlvideContrasena.setContentAreaFilled(true);
+        btnOlvideContrasena.setBackground(java.awt.Color.WHITE);
+        btnOlvideContrasena.addActionListener(e -> {
+        RecuperarContrasenaDialog dialog = new RecuperarContrasenaDialog();
+        dialog.setVisible(true);
+        });
+        bg.add(btnOlvideContrasena, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 420, 220, 25));
+        bg.revalidate();
+        bg.repaint();
     }
   
 public boolean verificarCredenciales(String usuario, String contrasena, String tipoUsuario) {
@@ -160,7 +171,7 @@ public boolean verificarCredenciales(String usuario, String contrasena, String t
                 btnAtrasActionPerformed(evt);
             }
         });
-        bg.add(btnAtras, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 380, 150, 30));
+        bg.add(btnAtras, new org.netbeans.lib.awtextra.AbsoluteConstraints(440, 360, 150, 30));
 
         btnSalir.setBackground(new java.awt.Color(51, 255, 255));
         btnSalir.setFont(new java.awt.Font("Segoe UI Black", 1, 14)); // NOI18N
@@ -216,36 +227,54 @@ public boolean verificarCredenciales(String usuario, String contrasena, String t
     }//GEN-LAST:event_txtUsuarioEmpleadoActionPerformed
 
     private void btnEntrarEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarEmpleadoActionPerformed
-        String usuario = txtUsuarioEmpleado.getText().trim();
-        String contrasena = new String(txtContraseñaEmpleado.getPassword());
+         String usuario = txtUsuarioEmpleado.getText().trim();
+    String contrasena = new String(txtContraseñaEmpleado.getPassword());
 
-        if (usuario.isEmpty() || usuario.equals("Ingrese su nombre de usuario")) 
-        {
-            JOptionPane.showMessageDialog(this, "Por favor ingrese su usuario.", "Aviso", JOptionPane.WARNING_MESSAGE);
+    if (usuario.isEmpty() || usuario.equals("Ingrese su nombre de usuario")) {
+        JOptionPane.showMessageDialog(this, "Por favor ingrese su usuario.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    if (!ConexionSQLServer.usuarioExiste(usuario)) {
+        JOptionPane.showMessageDialog(this, "La cuenta no existe. Verifica tu usuario.", "Cuenta inexistente", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    if (ConexionSQLServer.estaBloqueado(usuario)) {
+        JOptionPane.showMessageDialog(this, "Tu cuenta está bloqueada temporalmente.\nIntenta de nuevo en 5 minutos.", "Cuenta Bloqueada", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    boolean autenticado = ConexionSQLServer.authenticateEmpleado(usuario, contrasena);
+
+    if (autenticado) {
+        String cargoEmpleado = obtenerCargoEmpleado(usuario);
+        if (cargoEmpleado.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No se pudo obtener el cargo.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
-
-        boolean autenticado = ConexionSQLServer.authenticateEmpleado(usuario, contrasena);
-
-        if (autenticado) 
-        {
-        String cargoEmpleado = obtenerCargoEmpleado(usuario);
-
-        if (cargoEmpleado.isEmpty()) 
-        {
-        JOptionPane.showMessageDialog(this, "No se pudo obtener el cargo.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-        }
-
+        ConexionSQLServer.registrarLogin(usuario, "empleado");
         LoginViewEmpleado.this.setVisible(false);
         SeleccionRol seleccion = new SeleccionRol(usuario, cargoEmpleado);
         seleccion.setVisible(true);
-
-        } 
-        else 
-        {
-    JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    } else {
+        ConexionSQLServer.registrarIntentoFallido(usuario);
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT intentos FROM intentos_login WHERE usuario = ?")) {
+            stmt.setString(1, usuario);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int intentos = rs.getInt("intentos");
+                if (intentos >= 3) {
+                    JOptionPane.showMessageDialog(this, "Has superado los 3 intentos. Tu cuenta ha sido bloqueada por 5 minutos.", "Cuenta Bloqueada", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos. Intento " + intentos + " de 3.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos. Intento 1 de 3.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
     }//GEN-LAST:event_btnEntrarEmpleadoActionPerformed
 
     private void btnAtrasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtrasActionPerformed

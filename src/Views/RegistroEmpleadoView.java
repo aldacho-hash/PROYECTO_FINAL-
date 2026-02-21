@@ -1,5 +1,6 @@
 package Views;
 
+import conexiondb.ConexionSQLServer;
 import javax.swing.*;
 import java.awt.event.*;
 import java.sql.*;
@@ -22,7 +23,7 @@ public class RegistroEmpleadoView extends javax.swing.JFrame {
     }
     private void insertarUsuario(String usuario, String contrasena, String correo) {
         String connectionString = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=UTC";
-        String query = "INSERT INTO usuarios (nombre_usuario, contrasena_hash, email, tipo_usuario) VALUES (?, ?, ?, ?)";
+        String query = "INSERT INTO usuarios (usuario, contrasena, email, tipo_usuario) VALUES (?, ?, ?, ?)";
         try (Connection conn = DriverManager.getConnection(connectionString, "root", "carranza15");
              PreparedStatement stmt = conn.prepareStatement(query)) {
 
@@ -276,7 +277,7 @@ public class RegistroEmpleadoView extends javax.swing.JFrame {
     }//GEN-LAST:event_txtDNIActionPerformed
 
     private void btnRegistrarseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarseActionPerformed
-        if (evt.getSource() == btnRegistrarse) {
+       if (evt.getSource() == btnRegistrarse) {
         String nombres = txtNombres.getText();
         String apellidos = txtApellidos.getText();
         String dni = txtDNI.getText();
@@ -295,14 +296,34 @@ public class RegistroEmpleadoView extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
             return; 
         }
+
         if (!usuario.matches("[a-zA-Z0-9_\\.]+")) { 
             JOptionPane.showMessageDialog(null, "El usuario contiene caracteres no permitidos. Solo se permiten letras, números, guion bajo (_) y punto (.)", "Advertencia", JOptionPane.WARNING_MESSAGE);
             txtUsuario.setText("");
             return; 
         }
-        
+
+        if (ConexionSQLServer.usuarioExiste(usuario)) {
+            JOptionPane.showMessageDialog(null, "El usuario ya está registrado. Elige otro nombre de usuario.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            txtUsuario.setText("");
+            return;
+        }
+
+        if (contraseña.length() < 8) {
+            JOptionPane.showMessageDialog(null, "La contraseña debe tener al menos 8 caracteres.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            txtContraseña.setText("");
+            return;
+        }
+
+        if (!contraseña.matches("[^\\s<>'\"\\\\;\\[\\]\\{\\}\\(\\)]+")) {
+            JOptionPane.showMessageDialog(null, "La contraseña no puede contener espacios ni los caracteres: < > ' \" \\ ; [ ] { } ( )", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            txtContraseña.setText("");
+            return;
+        }
+
         insertarUsuario(usuario, contraseña, correo); 
         insertarEmpleado(nombres, apellidos, dni, correo, cargo, tipoContrato, fechaNacimiento, telefono, direccion, usuario, contraseña);
+
         txtNombres.setText("");
         txtApellidos.setText("");
         txtDNI.setText("");

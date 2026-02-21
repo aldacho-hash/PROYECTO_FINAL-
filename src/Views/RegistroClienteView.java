@@ -1,5 +1,6 @@
 
 package Views;
+import conexiondb.ConexionSQLServer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
@@ -277,7 +278,6 @@ public class RegistroClienteView extends javax.swing.JFrame {
     if (nombres.isEmpty() || apellidos.isEmpty() || dni.isEmpty() || correo.isEmpty() ||
         usuario.isEmpty() || contraseña.isEmpty() || telefono.isEmpty() || direccion.isEmpty() ||
         fechaNacimiento.isEmpty()) {
-
         JOptionPane.showMessageDialog(null, "Por favor, complete todos los campos.", "Advertencia", JOptionPane.WARNING_MESSAGE);
         return;  
     }
@@ -286,6 +286,24 @@ public class RegistroClienteView extends javax.swing.JFrame {
         JOptionPane.showMessageDialog(null, "El usuario contiene caracteres no permitidos. Solo se permiten letras, números, guion bajo (_) y punto (.)", "Advertencia", JOptionPane.WARNING_MESSAGE);
         txtUsuario.setText("");
         return;  
+    }
+
+    if (ConexionSQLServer.usuarioExiste(usuario)) {
+        JOptionPane.showMessageDialog(null, "El usuario ya está registrado. Elige otro nombre de usuario.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        txtUsuario.setText("");
+        return;
+    }
+
+    if (contraseña.length() < 8) {
+        JOptionPane.showMessageDialog(null, "La contraseña debe tener al menos 8 caracteres.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        txtContraseña.setText("");
+        return;
+    }
+
+    if (!contraseña.matches("[^\\s<>'\"\\\\;\\[\\]\\{\\}\\(\\)]+")) {
+        JOptionPane.showMessageDialog(null, "La contraseña no puede contener espacios ni los caracteres: < > ' \" \\ ; [ ] { } ( )", "Advertencia", JOptionPane.WARNING_MESSAGE);
+        txtContraseña.setText("");
+        return;
     }
 
     insertarUsuario(usuario, contraseña, correo);  

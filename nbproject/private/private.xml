@@ -3,10 +3,9 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/USER/OneDrive%20-%20Universidad%20Privada%20del%20Norte/Documents/GitHub/PROYECTO_FINAL-/src/Views/Sistema.java</file>
-            <file>file:/C:/Users/USER/OneDrive%20-%20Universidad%20Privada%20del%20Norte/Documents/GitHub/PROYECTO_FINAL-/src/Views/VentanaPrincipal.java</file>
-            <file>file:/C:/Users/USER/OneDrive%20-%20Universidad%20Privada%20del%20Norte/Documents/GitHub/PROYECTO_FINAL-/src/Views/VentanaGestionProductos.java</file>
-            <file>file:/C:/Users/USER/OneDrive%20-%20Universidad%20Privada%20del%20Norte/Documents/GitHub/PROYECTO_FINAL-/src/Views/RegistroClienteView.java</file>
+            <file>file:/C:/Users/USER/OneDrive%20-%20Universidad%20Privada%20del%20Norte/Documents/GitHub/PROYECTO_FINAL-/src/conexiondb/ConexionSQLServer.java</file>
+            <file>file:/C:/Users/USER/OneDrive%20-%20Universidad%20Privada%20del%20Norte/Documents/GitHub/PROYECTO_FINAL-/src/Views/LoginViewCliente.java</file>
+            <file>file:/C:/Users/USER/OneDrive%20-%20Universidad%20Privada%20del%20Norte/Documents/GitHub/PROYECTO_FINAL-/src/Views/LoginUsuarios.java</file>
         </group>
     </open-files>
 </project-private>

@@ -1,16 +1,17 @@
 package Views;
 
+import conexiondb.ConexionSQLServer;
 import javax.swing.*;
 import java.awt.*;
 
 public class SeleccionRol extends javax.swing.JFrame {
 
     private String usuario;
-    private String cargo; // cargo real del empleado desde la BD
+    private String cargo;
 
     public SeleccionRol(String usuario, String cargo) {
         this.usuario = usuario;
-        this.cargo = cargo.toLowerCase().trim(); // normalizar para comparar
+        this.cargo = cargo.toLowerCase().trim();
         initComponents();
         lblBienvenida.setText("Bienvenido: " + usuario + "  |  Cargo: " + cargo.toUpperCase());
     }
@@ -83,10 +84,9 @@ public class SeleccionRol extends javax.swing.JFrame {
         btnSalir.setBorderPainted(false);
         bg.add(btnSalir, new org.netbeans.lib.awtextra.AbsoluteConstraints(480, 390, 80, 30));
 
-        // Acciones de botones
-        btnVendedor.addActionListener(e -> accederRol("vendedor"));
-        btnLogistica.addActionListener(e -> accederRol("logistica"));
-        btnAdministrador.addActionListener(e -> accederRol("administrador"));
+        btnVendedor.addActionListener(e -> accederRol("Vendedor"));
+        btnLogistica.addActionListener(e -> accederRol("Logística"));
+        btnAdministrador.addActionListener(e -> accederRol("Administrador"));
         btnSalir.addActionListener(e -> {
             int r = JOptionPane.showConfirmDialog(this, "¿Estás seguro de salir?", "Salir", JOptionPane.YES_NO_OPTION);
             if (r == JOptionPane.YES_OPTION) System.exit(0);
@@ -98,17 +98,12 @@ public class SeleccionRol extends javax.swing.JFrame {
     }
 
     private void accederRol(String rolSeleccionado) {
-        // Administrador tiene acceso a todo sin restricción
-        boolean esAdmin = cargo.equals("administrador");
-
-        if (!esAdmin && !cargo.equals(rolSeleccionado)) {
-            // Mostrar advertencia de acceso denegado
+        if (!ConexionSQLServer.tienePermiso(cargo, rolSeleccionado)) {
             String cargoMostrar = cargo.substring(0, 1).toUpperCase() + cargo.substring(1);
             JOptionPane.showMessageDialog(
                 this,
                 "⛔ Acceso denegado.\n\nTu cargo es: " + cargoMostrar +
-                "\nNo tienes permiso para ingresar al área de " +
-                rolSeleccionado.substring(0, 1).toUpperCase() + rolSeleccionado.substring(1) + ".",
+                "\nNo tienes permiso para ingresar al área de " + rolSeleccionado + ".",
                 "Acceso Denegado",
                 JOptionPane.WARNING_MESSAGE
             );
@@ -117,23 +112,21 @@ public class SeleccionRol extends javax.swing.JFrame {
 
         // Acceso permitido — abrir la ventana correspondiente
         this.setVisible(false);
-        switch (rolSeleccionado) {
+        switch (rolSeleccionado.toLowerCase()) {
             case "vendedor":
                 // Abrir ventana de vendedor (VentanaPrincipal como cliente/vendedor)
                 VentanaPrincipal ventanaVendedor = new VentanaPrincipal(usuario);
                 ventanaVendedor.setVisible(true);
                 break;
-
-            case "logistica":
-                Sistema sistemaLogistica = new Sistema(usuario);
+            case "logística":
+                Sistema sistemaLogistica = new Sistema(usuario, "logistica");
                 sistemaLogistica.setVisible(true);
-                break;
+            break;
 
             case "administrador":
-                // Abrir el panel de administrador (Sistema.java)
-                Sistema sistemaFrame = new Sistema(usuario);
-                sistemaFrame.setVisible(true);
-                break;
+            Sistema sistemaFrame = new Sistema(usuario, "administrador");
+            sistemaFrame.setVisible(true);
+            break;
         }
     }
 

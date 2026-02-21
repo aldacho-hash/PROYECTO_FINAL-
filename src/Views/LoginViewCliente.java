@@ -24,6 +24,19 @@ public class LoginViewCliente extends javax.swing.JFrame {
      */
     public LoginViewCliente() {
         initComponents();
+        
+        javax.swing.JButton btnOlvideContrasena = new javax.swing.JButton("¿Olvidaste tu contraseña?");
+        btnOlvideContrasena.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
+        btnOlvideContrasena.setBorderPainted(false);
+        btnOlvideContrasena.setContentAreaFilled(true);
+        btnOlvideContrasena.setBackground(java.awt.Color.WHITE);
+        btnOlvideContrasena.addActionListener(e -> {
+        RecuperarContrasenaDialog dialog = new RecuperarContrasenaDialog();
+        dialog.setVisible(true);
+        });
+        bg.add(btnOlvideContrasena, new org.netbeans.lib.awtextra.AbsoluteConstraints(420, 420, 220, 25));
+        bg.revalidate();
+        bg.repaint();
     }
   
 public boolean verificarCredenciales(String usuario, String contraseña, String tipoUsuario) {
@@ -216,40 +229,60 @@ public boolean verificarCredenciales(String usuario, String contraseña, String 
     }//GEN-LAST:event_txtUsuarioClienteActionPerformed
 
     private void btnEntrarClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEntrarClienteActionPerformed
-    btnEntrarCliente.addActionListener(new ActionListener() {
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String usuario = txtUsuarioCliente.getText();
-        String contraseña = new String(txtContraseñaCliente.getPassword());
-        
-        boolean autenticado = ConexionSQLServer.authenticateCliente(usuario, contraseña);
+    String usuario = txtUsuarioCliente.getText();
+    String contraseña = new String(txtContraseñaCliente.getPassword());
 
-        if (autenticado) {
-            LoginViewCliente.this.setVisible(false);  
-            VentanaPrincipal ventanaPrincipal = new VentanaPrincipal(usuario);
-            ventanaPrincipal.setVisible(true);
-        }
-        else{
-            JOptionPane.showMessageDialog(null, "Usuario o contraseña incorrectos.");
-        }
+    if (usuario.equals("Ingrese su nombre de usuario") || usuario.trim().isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Por favor ingrese su usuario.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        return;
     }
-        });
+
+    if (!ConexionSQLServer.usuarioExiste(usuario)) {
+        JOptionPane.showMessageDialog(this, "La cuenta no existe. Verifica tu usuario o regístrate.", "Cuenta inexistente", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    if (ConexionSQLServer.estaBloqueado(usuario)) {
+        JOptionPane.showMessageDialog(this, "Tu cuenta está bloqueada temporalmente.\nIntenta de nuevo en 5 minutos.", "Cuenta Bloqueada", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    boolean autenticado = ConexionSQLServer.authenticateCliente(usuario, contraseña);
+
+    if (autenticado) {
+        ConexionSQLServer.registrarLogin(usuario, "cliente");
+        setVisible(false);
+        VentanaPrincipal ventanaPrincipal = new VentanaPrincipal(usuario);
+        ventanaPrincipal.setVisible(true);
+    } else {
+        ConexionSQLServer.registrarIntentoFallido(usuario);
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement stmt = conn.prepareStatement("SELECT intentos FROM intentos_login WHERE usuario = ?")) {
+            stmt.setString(1, usuario);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int intentos = rs.getInt("intentos");
+                if (intentos >= 3) {
+                    JOptionPane.showMessageDialog(this, "Has superado los 3 intentos. Tu cuenta ha sido bloqueada por 5 minutos.", "Cuenta Bloqueada", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos. Intento " + intentos + " de 3.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos. Intento 1 de 3.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
     }//GEN-LAST:event_btnEntrarClienteActionPerformed
 
     private void btnAtrasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAtrasActionPerformed
-        btnAtras.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                LoginViewCliente.this.setVisible(false); 
-                LoginUsuarios loginUsuarios = new LoginUsuarios();
-                loginUsuarios.setVisible(true);  
-            }
-        });
+    setVisible(false);
+    LoginUsuarios loginUsuarios = new LoginUsuarios();
+    loginUsuarios.setVisible(true);
     }//GEN-LAST:event_btnAtrasActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
-        int respuesta=JOptionPane.showOptionDialog(this,"¿Estas seguro de salir?","Mensaje de Confirmación",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,null,null);
-        if(respuesta==0) System.exit(0);
+        int respuesta = JOptionPane.showConfirmDialog(null, "¿Estás seguro de salir?", "Mensaje de Confirmación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+        if (respuesta == 0) System.exit(0);
     }//GEN-LAST:event_btnSalirActionPerformed
 
     /**

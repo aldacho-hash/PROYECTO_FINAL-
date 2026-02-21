@@ -17,7 +17,7 @@ public class Sistema extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Sistema.class.getName());
     private VentanaPrincipal ventanaPrincipal;
        
-    public Sistema(String nombreEmpleado) {
+    public Sistema(String nombreEmpleado,String cargo) {
     initComponents(); 
 
     String[] columnNamesEmpleados = {"ID", "Nombre", "DNI","Correo","Fecha de Nacimiento" ,"Dirección", "Teléfono"};
@@ -61,7 +61,22 @@ public class Sistema extends javax.swing.JFrame {
     public void changedUpdate(javax.swing.event.DocumentEvent e) {}
 });
     btnGestionProductos.addActionListener(e -> abrirGestionProductos());
-    
+    if (cargo.equalsIgnoreCase("administrador")) {
+    btnGestionRoles = new javax.swing.JButton("Gestión de Roles");
+    btnGestionRoles.setFont(new java.awt.Font("Segoe UI", 1, 14));
+    btnGestionRoles.setBackground(new java.awt.Color(238, 238, 238));
+    btnGestionRoles.setForeground(new java.awt.Color(0, 0, 0));
+    btnGestionRoles.setOpaque(true);
+    btnGestionRoles.setFocusPainted(false);
+    btnGestionRoles.setBounds(380, 625, 180, 32);
+    jPanel1.add(btnGestionRoles);
+    jPanel1.setComponentZOrder(btnGestionRoles, 0);
+    btnGestionRoles.addActionListener(e -> {
+    GestionRoles gr = new GestionRoles();
+    gr.setVisible(true);
+    });
+}
+
     pnlPrincipal.addChangeListener(e -> {
     cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
     cargarClientesEnTabla((DefaultTableModel) tblClientes.getModel());
@@ -535,11 +550,11 @@ private void cargarVentasEnTabla(DefaultTableModel tableModel) {
                         .addComponent(btnSalir)))
                 .addGap(18, 18, 18))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(96, 96, 96)
                 .addComponent(btnGestionProductos)
-                .addGap(143, 143, 143)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnCerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(226, 226, 226))
+                .addGap(105, 105, 105))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -640,6 +655,7 @@ private void cargarVentasEnTabla(DefaultTableModel tableModel) {
         }
         //</editor-fold>
     }
+    private javax.swing.JButton btnGestionRoles;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscarCliente;

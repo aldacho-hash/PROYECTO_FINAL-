@@ -128,40 +128,22 @@ public class LoginUsuarios extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnRegistroClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistroClienteActionPerformed
-        btnRegistroCliente.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-        
-        LoginViewCliente loginView = new LoginViewCliente();  
-        loginView.setVisible(true);  
+        LoginViewCliente loginView = new LoginViewCliente();
+        loginView.setVisible(true);
         setVisible(false);
-        }
-    });
     }//GEN-LAST:event_btnRegistroClienteActionPerformed
 
     private void btnIniciarEmpleadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarEmpleadoActionPerformed
-        btnIniciarEmpleado.addActionListener(new ActionListener() {
-        @Override
-        
-        public void actionPerformed(ActionEvent e) {
-        LoginViewEmpleado loginView = new LoginViewEmpleado(); 
-        loginView.setVisible(true); 
+        LoginViewEmpleado loginView = new LoginViewEmpleado();
+        loginView.setVisible(true);
 
         setVisible(false);
-           
-        }
-    });
     }//GEN-LAST:event_btnIniciarEmpleadoActionPerformed
 
     private void btnRegistrarseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarseActionPerformed
-        btnRegistrarse.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                RegistroView registroFrame = new RegistroView();
-                registroFrame.setVisible(true);
-                setVisible(false);
-            }
-        });
+        RegistroView registroFrame = new RegistroView();
+        registroFrame.setVisible(true);
+        setVisible(false);
     }//GEN-LAST:event_btnRegistrarseActionPerformed
 
     private void btnSalirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalirActionPerformed
