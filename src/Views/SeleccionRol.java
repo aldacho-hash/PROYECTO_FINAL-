@@ -114,10 +114,10 @@ public class SeleccionRol extends javax.swing.JFrame {
         this.setVisible(false);
         switch (rolSeleccionado.toLowerCase()) {
             case "vendedor":
-                // Abrir ventana de vendedor (VentanaPrincipal como cliente/vendedor)
-                VentanaPrincipal ventanaVendedor = new VentanaPrincipal(usuario);
-                ventanaVendedor.setVisible(true);
-                break;
+            VentanaPrincipal ventanaVendedor = new VentanaPrincipal(usuario, usuario);
+            ventanaVendedor.setVisible(true);
+            break;
+            
             case "logística":
                 Sistema sistemaLogistica = new Sistema(usuario, "logistica");
                 sistemaLogistica.setVisible(true);

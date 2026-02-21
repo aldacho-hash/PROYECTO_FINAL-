@@ -43,10 +43,75 @@ public class Sistema extends javax.swing.JFrame {
     this.nombreEmpleado = nombreEmpleado;
 
     String nombreCliente = "x"; 
-    ventanaPrincipal = new VentanaPrincipal(nombreCliente);
+    ventanaPrincipal = new VentanaPrincipal(nombreCliente, "");
     btnBuscarCliente.addActionListener(e -> clientesRegistrados(txtBuscarCliente.getText().trim()));
     btnBuscarEmpleado.addActionListener(e -> empleadosRegistrados(txtBuscarEmpleado.getText().trim()));
-    btnBuscarHistorialVentas.addActionListener(e -> buscarCliente(txtHistorialVentas.getText().trim()));
+    btnBuscarHistorialVentas.addActionListener(e -> filtrarVentas());
+    
+    txtFiltroVendedor = new javax.swing.JTextField();
+    txtFiltroVendedor.setToolTipText("Filtrar por vendedor");
+    txtFiltroVendedor.setColumns(10);
+
+    txtFechaDesde = new javax.swing.JTextField("yyyy-MM-dd");
+    txtFechaDesde.setForeground(java.awt.Color.GRAY);
+    txtFechaDesde.setColumns(10);
+    txtFechaDesde.addFocusListener(new java.awt.event.FocusAdapter() 
+    {
+        
+    public void focusGained(java.awt.event.FocusEvent e) {
+        if (txtFechaDesde.getText().equals("yyyy-MM-dd")) txtFechaDesde.setText("");
+        txtFechaDesde.setForeground(java.awt.Color.BLACK);
+    }
+    public void focusLost(java.awt.event.FocusEvent e) {
+        if (txtFechaDesde.getText().isEmpty()) {
+            txtFechaDesde.setText("yyyy-MM-dd");
+            txtFechaDesde.setForeground(java.awt.Color.GRAY);
+            }
+        }
+    });
+
+    txtFechaHasta = new javax.swing.JTextField("yyyy-MM-dd");
+    txtFechaHasta.setForeground(java.awt.Color.GRAY);
+    txtFechaHasta.setColumns(10);
+    txtFechaHasta.addFocusListener(new java.awt.event.FocusAdapter() {
+        public void focusGained(java.awt.event.FocusEvent e) {
+            if (txtFechaHasta.getText().equals("yyyy-MM-dd")) txtFechaHasta.setText("");
+            txtFechaHasta.setForeground(java.awt.Color.BLACK);
+        }
+    public void focusLost(java.awt.event.FocusEvent e) {
+            if (txtFechaHasta.getText().isEmpty()) {
+                txtFechaHasta.setText("yyyy-MM-dd");
+                txtFechaHasta.setForeground(java.awt.Color.GRAY);
+        }
+    }
+});
+
+    // Agregar los campos al panel del historial
+    pnlHistorial.setLayout(null);
+    txtHistorialVentas.setBounds(10, 300, 160, 32);
+    btnBuscarHistorialVentas.setBounds(180, 300, 100, 32);
+    txtFiltroVendedor.setBounds(290, 300, 140, 32);
+    txtFechaDesde.setBounds(440, 300, 110, 32);
+    txtFechaHasta.setBounds(560, 300, 110, 32);
+    jScrollPane3.setBounds(0, 0, 911, 290);
+
+pnlHistorial.add(jScrollPane3);
+pnlHistorial.add(txtHistorialVentas);
+pnlHistorial.add(btnBuscarHistorialVentas);
+pnlHistorial.add(txtFiltroVendedor);
+pnlHistorial.add(txtFechaDesde);
+pnlHistorial.add(txtFechaHasta);
+
+    // Labels
+    javax.swing.JLabel lblVendedor = new javax.swing.JLabel("Vendedor:");
+    javax.swing.JLabel lblDesde = new javax.swing.JLabel("Desde:");
+    javax.swing.JLabel lblHasta = new javax.swing.JLabel("Hasta:");
+    lblVendedor.setBounds(290, 278, 80, 20);
+    lblDesde.setBounds(440, 278, 50, 20);
+    lblHasta.setBounds(560, 278, 50, 20);
+    pnlHistorial.add(lblVendedor);
+    pnlHistorial.add(lblDesde);
+    pnlHistorial.add(lblHasta);
     
     txtHistorialVentas.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
     @Override
@@ -93,38 +158,103 @@ public class Sistema extends javax.swing.JFrame {
         ventanaGestion.setVisible(true);
     }
     
+    private void filtrarVentas() {
+    String textoBusqueda = txtHistorialVentas.getText().trim();
+    String vendedor = txtFiltroVendedor.getText().trim();
+    String fechaDesde = txtFechaDesde.getText().trim().equals("yyyy-MM-dd") ? "" : txtFechaDesde.getText().trim();
+    String fechaHasta = txtFechaHasta.getText().trim().equals("yyyy-MM-dd") ? "" : txtFechaHasta.getText().trim();
+
+    StringBuilder query = new StringBuilder(
+        "SELECT CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
+        "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
+        "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, v.vendedor " +
+        "FROM ventas v " +
+        "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+        "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
+        "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
+        "WHERE 1=1 "
+    );
+
+    if (!textoBusqueda.isEmpty())
+        query.append("AND (c.nombres LIKE ? OR c.apellidos LIKE ? OR p.nombre LIKE ?) ");
+    if (!vendedor.isEmpty())
+        query.append("AND v.vendedor LIKE ? ");
+    if (!fechaDesde.isEmpty())
+        query.append("AND DATE(v.fecha) >= ? ");
+    if (!fechaHasta.isEmpty())
+        query.append("AND DATE(v.fecha) <= ? ");
+
+    query.append("ORDER BY v.fecha DESC");
+
+    try (Connection conn = ConexionSQLServer.getConnection();
+         PreparedStatement ps = conn.prepareStatement(query.toString())) {
+
+        int idx = 1;
+        if (!textoBusqueda.isEmpty()) {
+            ps.setString(idx++, "%" + textoBusqueda + "%");
+            ps.setString(idx++, "%" + textoBusqueda + "%");
+            ps.setString(idx++, "%" + textoBusqueda + "%");
+        }
+        if (!vendedor.isEmpty())
+            ps.setString(idx++, "%" + vendedor + "%");
+        if (!fechaDesde.isEmpty())
+            ps.setString(idx++, fechaDesde);
+        if (!fechaHasta.isEmpty())
+            ps.setString(idx++, fechaHasta);
+
+        DefaultTableModel model = (DefaultTableModel) tblHistorialVentas.getModel();
+        model.setRowCount(0);
+        ResultSet rs = ps.executeQuery();
+
+        boolean hayResultados = false;
+        while (rs.next()) {
+            hayResultados = true;
+            model.addRow(new Object[]{
+                rs.getString("cliente"),
+                rs.getString("producto"),
+                "S/. " + rs.getDouble("precio"),
+                rs.getInt("cantidad"),
+                rs.getDouble("subtotal"),
+                rs.getDate("fecha"),
+                rs.getTime("hora"),
+                rs.getString("vendedor")
+            });
+        }
+        if (!hayResultados)
+            JOptionPane.showMessageDialog(this, "No se encontraron resultados.", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
+
+    } catch (SQLException e) {
+        e.printStackTrace();
+        JOptionPane.showMessageDialog(this, "Error al filtrar ventas: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
     private void buscarCliente(String nombreCliente) {
     if (nombreCliente.isEmpty()) {
         JOptionPane.showMessageDialog(this, "Por favor ingrese el nombre del cliente.", "Error", JOptionPane.ERROR_MESSAGE);
         return;
-    }
-
-    String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
-               "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, v.fecha " +
+        }
+        String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
+               "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
+               "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, v.vendedor " +
                "FROM ventas v " +
                "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
                "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
                "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
                "WHERE c.nombres LIKE ? OR c.apellidos LIKE ? OR p.nombre LIKE ? " + 
                "ORDER BY v.fecha DESC";
-
-    try (Connection conn = ConexionSQLServer.getConnection(); 
-         PreparedStatement ps = conn.prepareStatement(query)) {
-
-        ps.setString(1, "%" + nombreCliente + "%");
-        ps.setString(2, "%" + nombreCliente + "%");
-        ps.setString(3, "%" + nombreCliente + "%");
-        ResultSet rs = ps.executeQuery();
-
-        DefaultTableModel modelVentas = (DefaultTableModel) tblHistorialVentas.getModel();
-        modelVentas.setRowCount(0);
+        try (Connection conn = ConexionSQLServer.getConnection(); 
+            PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, "%" + nombreCliente + "%");
+            ps.setString(2, "%" + nombreCliente + "%");
+            ps.setString(3, "%" + nombreCliente + "%");
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel modelVentas = (DefaultTableModel) tblHistorialVentas.getModel();
+            modelVentas.setRowCount(0);
         if (!rs.isBeforeFirst()) {
-        cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
-        JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
-        return;
-}
-
-       
+            cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
+            JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
+            return;
+            }
         while (rs.next()) {
             String cliente = rs.getString("cliente");  
             String producto = rs.getString("producto");
@@ -134,16 +264,13 @@ public class Sistema extends javax.swing.JFrame {
             Date fecha = rs.getDate("fecha");
             Time hora = rs.getTime("hora");
             String vendedor = rs.getString("vendedor");
-          
-            modelVentas.addRow(new Object[]{cliente, producto,"S/. "+precio, cantidad, subtotal, fecha});
+            modelVentas.addRow(new Object[]{cliente, producto, "S/. "+precio, cantidad, subtotal, fecha, hora, vendedor});
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al buscar el cliente", "Error", JOptionPane.ERROR_MESSAGE);
-    }
-}
-    
+        }  catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al buscar el cliente", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }    
     
     private void clientesRegistrados(String nombreCliente) {
     if (nombreCliente.isEmpty()) {
@@ -281,15 +408,14 @@ public class Sistema extends javax.swing.JFrame {
    
 private void cargarVentasEnTabla(DefaultTableModel tableModel) {
     String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
-               "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
-               "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, " +
-               "CONCAT(e.nombres, ' ', e.apellidos) AS vendedor " +
-               "FROM ventas v " +
-               "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
-               "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
-               "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
-               "LEFT JOIN empleado e ON v.id_empleado = e.empleado_id " +
-               "ORDER BY v.fecha DESC";
+                   "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
+                   "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, " +
+                   "v.vendedor AS vendedor " +
+                   "FROM ventas v " +
+                   "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+                   "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
+                   "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
+                   "ORDER BY v.fecha DESC";
     try (Connection conn = ConexionSQLServer.getConnection();
          PreparedStatement stmt = conn.prepareStatement(query);
          ResultSet rs = stmt.executeQuery()) {  
@@ -656,6 +782,9 @@ private void cargarVentasEnTabla(DefaultTableModel tableModel) {
         //</editor-fold>
     }
     private javax.swing.JButton btnGestionRoles;
+    private javax.swing.JTextField txtFiltroVendedor;
+    private javax.swing.JTextField txtFechaDesde;
+    private javax.swing.JTextField txtFechaHasta;
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBuscarCliente;

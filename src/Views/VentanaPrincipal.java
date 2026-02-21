@@ -20,6 +20,7 @@ import java.sql.Statement;
 
 public class VentanaPrincipal extends JFrame {
     private String nombreCliente;
+    private String nombreVendedor;
     private String usuario;
     private JPanel panelSuperior;
     private JPanel panelMenu;
@@ -35,9 +36,10 @@ public class VentanaPrincipal extends JFrame {
     private List<CampañaDescuento> campanias = new ArrayList<>();
     private VentanaGestionProductos ventanaGestionProductos;
 
-    public VentanaPrincipal(String nombreCliente) {
+    public VentanaPrincipal(String nombreCliente, String nombreVendedor) {
         initComponents();
         this.nombreCliente = nombreCliente;
+        this.nombreVendedor = nombreVendedor != null ? nombreVendedor : "";
         cargarProductosEjemplo();
         mostrarProductos("Todos los Productos");
         btnCarrito.addActionListener(e -> verCarrito());
@@ -236,7 +238,7 @@ public class VentanaPrincipal extends JFrame {
         JFrame ventanaPedidos = new JFrame("Mis Pedidos");
         ventanaPedidos.setSize(800, 500);
         ventanaPedidos.setLocationRelativeTo(this);
-        String[] columnas = {"ID Pedido", "Fecha", "Total", "Estado", "Método Pago"};
+        String[] columnas = {"ID Pedido", "Fecha", "Hora", "Total", "Estado", "Método Pago"};
         DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
         String query = "SELECT v.id_venta, v.fecha, v.total, v.metodo_pago, " +
                        "COALESCE(p.estado_pedido, 'Completado') as estado " +
@@ -248,8 +250,11 @@ public class VentanaPrincipal extends JFrame {
             ps.setString(1, nombreCliente);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
+                java.sql.Timestamp ts = rs.getTimestamp("fecha");
                 modelo.addRow(new Object[]{
-                    rs.getInt("id_venta"), rs.getTimestamp("fecha"),
+                    rs.getInt("id_venta"),
+                    ts != null ? ts.toLocalDateTime().toLocalDate() : "",
+                    ts != null ? ts.toLocalDateTime().toLocalTime().withSecond(0).withNano(0) : "",
                     String.format("S/ %.2f", rs.getDouble("total")),
                     rs.getString("estado"), rs.getString("metodo_pago")
                 });
@@ -374,8 +379,85 @@ public class VentanaPrincipal extends JFrame {
                 btnEditar.setBorderPainted(false);
                 btnEditar.setContentAreaFilled(false);
                 btnEditar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                btnEditar.addActionListener(e ->
-                    JOptionPane.showMessageDialog(ventana, "Función de editar próximamente.", "Editar", JOptionPane.INFORMATION_MESSAGE));
+                btnEditar.addActionListener(e -> {
+                    JPanel panelEditar = new JPanel(new GridLayout(4, 2, 10, 10));
+                panelEditar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+                JTextField txtNuevaCalle  = new JTextField(calle);
+                JComboBox<String> cmbDep  = new JComboBox<>();
+                JComboBox<String> cmbProv = new JComboBox<>();
+                JComboBox<String> cmbDist = new JComboBox<>();
+
+                cmbDep.addItem(depto);
+                cmbProv.addItem(provincia);
+                cmbDist.addItem(distrito);
+
+            try (Connection con2 = ConexionSQLServer.getConnection();
+                PreparedStatement ps2 = con2.prepareStatement("SELECT nombre FROM departamento ORDER BY nombre");
+                ResultSet rs2 = ps2.executeQuery()) {
+            while (rs2.next()) {
+                String dep = rs2.getString("nombre");
+                if (!dep.equals(depto)) cmbDep.addItem(dep);
+                }
+            } catch (SQLException ex) { ex.printStackTrace(); }
+
+                cmbDep.addActionListener(ev -> {
+                cmbProv.removeAllItems(); cmbDist.removeAllItems();
+                cmbProv.addItem("Seleccionar"); cmbDist.addItem("Seleccionar");
+                String depSel = (String) cmbDep.getSelectedItem();
+                if (depSel == null) return;
+            try (Connection con2 = ConexionSQLServer.getConnection();
+                PreparedStatement ps2 = con2.prepareStatement(
+                "SELECT p.nombre FROM provincia p INNER JOIN departamento d ON p.id_departamento=d.id_departamento WHERE d.nombre=? ORDER BY p.nombre")) {
+                ps2.setString(1, depSel);
+                ResultSet rs2 = ps2.executeQuery();
+                while (rs2.next()) cmbProv.addItem(rs2.getString("nombre"));
+            } catch (SQLException ex) { ex.printStackTrace(); }
+    });
+
+    cmbProv.addActionListener(ev -> {
+        cmbDist.removeAllItems(); cmbDist.addItem("Seleccionar");
+        String provSel = (String) cmbProv.getSelectedItem();
+        if (provSel == null || provSel.equals("Seleccionar")) return;
+        try (Connection con2 = ConexionSQLServer.getConnection();
+             PreparedStatement ps2 = con2.prepareStatement(
+                "SELECT d.nombre FROM distrito d INNER JOIN provincia p ON d.id_provincia=p.id_provincia WHERE p.nombre=? ORDER BY d.nombre")) {
+            ps2.setString(1, provSel);
+            ResultSet rs2 = ps2.executeQuery();
+            while (rs2.next()) cmbDist.addItem(rs2.getString("nombre"));
+        } catch (SQLException ex) { ex.printStackTrace(); }
+    });
+
+    panelEditar.add(new JLabel("Dirección:"));    panelEditar.add(txtNuevaCalle);
+    panelEditar.add(new JLabel("Departamento:")); panelEditar.add(cmbDep);
+    panelEditar.add(new JLabel("Provincia:"));    panelEditar.add(cmbProv);
+    panelEditar.add(new JLabel("Distrito:"));     panelEditar.add(cmbDist);
+
+    int resultado = JOptionPane.showConfirmDialog(ventana, panelEditar,
+        "Editar Dirección", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+    if (resultado == JOptionPane.OK_OPTION) {
+        if (txtNuevaCalle.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(ventana, "La dirección no puede estar vacía.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        try (Connection con2 = ConexionSQLServer.getConnection();
+             PreparedStatement ps2 = con2.prepareStatement(
+                "UPDATE direcciones SET calle=?, distrito=?, ciudad=?, departamento=? WHERE id_direccion=?")) {
+            ps2.setString(1, txtNuevaCalle.getText().trim());
+            ps2.setString(2, cmbDist.getSelectedItem().toString());
+            ps2.setString(3, cmbProv.getSelectedItem().toString());
+            ps2.setString(4, cmbDep.getSelectedItem().toString());
+            ps2.setInt(5, idDir);
+            ps2.executeUpdate();
+            JOptionPane.showMessageDialog(ventana, "Dirección actualizada correctamente.", "Exito", JOptionPane.INFORMATION_MESSAGE);
+            cargarDirecciones2(panelLista, idCliente, ventana);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(ventana, "Error al actualizar la dirección.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+});
 
                 panelBotones.add(btnEliminar);
                 panelBotones.add(sep);
@@ -493,6 +575,34 @@ public class VentanaPrincipal extends JFrame {
             JOptionPane.showMessageDialog(this, "No hay productos en el carrito.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+
+        // Si es vendedor, pedir DNI del cliente
+        String clienteId = nombreCliente;
+        if (!nombreVendedor.isEmpty()) {
+            String dni = JOptionPane.showInputDialog(this,
+                "Ingrese el DNI del cliente:", "Identificar Cliente", JOptionPane.PLAIN_MESSAGE);
+            if (dni == null || dni.trim().isEmpty()) return;
+
+            try (Connection con = ConexionSQLServer.getConnection();
+                 PreparedStatement ps = con.prepareStatement(
+                    "SELECT usuario, nombres, apellidos FROM cliente WHERE dni = ? AND activo = 1")) {
+                ps.setString(1, dni.trim());
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    String nombreCompleto = rs.getString("nombres") + " " + rs.getString("apellidos");
+                    clienteId = rs.getString("usuario");
+                    JOptionPane.showMessageDialog(this,
+                        "Cliente encontrado: " + nombreCompleto,
+                        "Cliente identificado", JOptionPane.INFORMATION_MESSAGE);
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                        "No se encontró ningún cliente con DNI: " + dni,
+                        "Cliente no encontrado", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            } catch (SQLException e) { e.printStackTrace(); return; }
+        }
+
         double total = 0;
         for (CarritoProducto cp : carrito) total += cp.getSubtotal();
         double descuento = obtenerDescuentoActivo();
@@ -501,10 +611,12 @@ public class VentanaPrincipal extends JFrame {
             total, descuento * 100, totalConDescuento);
         int respuesta = JOptionPane.showConfirmDialog(this, mensaje + "\n¿Desea confirmar la compra?",
             "Confirmación", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-        if (respuesta == JOptionPane.YES_OPTION) realizarCompra(totalConDescuento);
+
+        final String clienteFinal = clienteId;
+        if (respuesta == JOptionPane.YES_OPTION) realizarCompra(totalConDescuento, clienteFinal);
     }
 
-    private void realizarCompra(double total) {
+    private void realizarCompra(double total, String clienteUsuario) {
         JDialog dialogPago = new JDialog(this, "Seleccionar Método de Pago", true);
         dialogPago.setSize(500, 550);
         dialogPago.setLocationRelativeTo(this);
@@ -605,15 +717,10 @@ public class VentanaPrincipal extends JFrame {
         JLabel lblNumYape = new JLabel("Número: 999-888-777");
         lblNumYape.setFont(new Font("Segoe UI", Font.BOLD, 13));
         lblNumYape.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JPanel qrYape = new JPanel();
-        qrYape.setBackground(new Color(230, 220, 245));
-        qrYape.setPreferredSize(new Dimension(150, 150));
-        qrYape.setMaximumSize(new Dimension(150, 150));
+        ImageIcon iconQR = new ImageIcon(getClass().getResource("/recursos/qr_yape.png"));
+        Image imgQR = iconQR.getImage().getScaledInstance(180, 180, Image.SCALE_SMOOTH);
+        JLabel qrYape = new JLabel(new ImageIcon(imgQR));
         qrYape.setAlignmentX(Component.CENTER_ALIGNMENT);
-        JLabel lblQRYape = new JLabel("[ QR Yape aquí ]");
-        lblQRYape.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        lblQRYape.setForeground(new Color(100, 0, 150));
-        qrYape.add(lblQRYape);
         panelYape.add(lblYapeTitulo);
         panelYape.add(Box.createVerticalStrut(10));
         panelYape.add(qrYape);
@@ -753,7 +860,7 @@ public class VentanaPrincipal extends JFrame {
             String nombreCampaña       = camp != null ? camp.getNombre() : "Ninguna";
 
             List<CarritoProducto> carritoCopia = new ArrayList<>(carrito);
-            insertarVenta(nombreCliente, carrito, totalPagar, metodoFinal, delivery);
+            insertarVenta(clienteUsuario, carrito, totalPagar, metodoFinal, delivery);
             for (CarritoProducto cp : carrito) {
                 actualizarStockEnBaseDeDatos(cp.getProducto(), cp.getCantidad());
                 cp.getProducto().setStock(cp.getProducto().getStock() - cp.getCantidad());
@@ -769,7 +876,47 @@ public class VentanaPrincipal extends JFrame {
                 "Total pagado: S/ " + String.format("%.2f", totalPagar),
                 "Compra exitosa", JOptionPane.INFORMATION_MESSAGE);
 
-            GenerarPDF.generarBoletaDeVenta(nombreCliente, carritoCopia, totalPagar, metodoFinal, delivery, nombreCampaña, descuentoPorcentaje * 100);
+            // ── Selección de tipo de comprobante ──
+            String[] opciones = {"Boleta", "Factura"};
+            int tipoOpcion = JOptionPane.showOptionDialog(VentanaPrincipal.this,
+                "¿Qué tipo de comprobante desea?", "Comprobante de Pago",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE,
+                null, opciones, opciones[0]);
+
+            String tipoComprobante = tipoOpcion == 1 ? "Factura" : "Boleta";
+            String ruc = "";
+            String razonSocial = "";
+
+            if (tipoOpcion == 1) {
+                ruc = JOptionPane.showInputDialog(VentanaPrincipal.this, "Ingrese su RUC:");
+                if (ruc == null || ruc.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "RUC requerido para factura.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+                razonSocial = JOptionPane.showInputDialog(VentanaPrincipal.this, "Ingrese su Razón Social:");
+                if (razonSocial == null || razonSocial.trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(VentanaPrincipal.this, "Razón Social requerida para factura.", "Aviso", JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            }
+
+            int numero = ConexionSQLServer.obtenerSiguienteNumeroComprobante(tipoComprobante);
+            String numeroComprobante = String.format("%s-%08d", tipoOpcion == 1 ? "F001" : "B001", numero);
+
+            String rutaPDF = GenerarPDF.generarBoletaDeVenta(
+                clienteUsuario, carritoCopia, totalPagar, metodoFinal,
+                delivery, nombreCampaña, descuentoPorcentaje * 100,
+                tipoComprobante, numeroComprobante, ruc, razonSocial
+            );
+
+            // ── Enviar por correo ──
+            String correoCliente = ConexionSQLServer.obtenerCorreoCliente(clienteUsuario);
+            if (correoCliente != null && !correoCliente.isEmpty() && rutaPDF != null) {
+                ConexionSQLServer.enviarComprobante(correoCliente, rutaPDF, tipoComprobante, numeroComprobante);
+                JOptionPane.showMessageDialog(VentanaPrincipal.this,
+                    tipoComprobante + " N° " + numeroComprobante + " enviada a: " + correoCliente,
+                    "Comprobante enviado", JOptionPane.INFORMATION_MESSAGE);
+            }
         });
 
         panelConfirmar.add(btnConfirmar);
@@ -814,14 +961,17 @@ public class VentanaPrincipal extends JFrame {
     }
 
     public void insertarVenta(String usuario, List<CarritoProducto> carrito, double total, String metodoPago, String delivery) {
-        String queryVenta = "INSERT INTO ventas (id_cliente, fecha, total, metodo_pago, delivery) VALUES (?, ?, ?, ?, ?)";
+        String queryVenta = "INSERT INTO ventas (id_cliente, fecha, total, metodo_pago, delivery, vendedor) VALUES (?, ?, ?, ?, ?, ?)";
         String queryPV    = "INSERT INTO productos_vendidos (id_venta, id_producto, precio, cantidad, subtotal) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = ConexionSQLServer.getConnection();
              PreparedStatement stmtVenta = conn.prepareStatement(queryVenta, Statement.RETURN_GENERATED_KEYS);
              PreparedStatement stmtPV    = conn.prepareStatement(queryPV)) {
             stmtVenta.setInt(1, obtenerIdCliente(usuario));
-            stmtVenta.setDate(2, java.sql.Date.valueOf(java.time.LocalDate.now()));
-            stmtVenta.setDouble(3, total); stmtVenta.setString(4, metodoPago); stmtVenta.setString(5, delivery);
+            stmtVenta.setTimestamp(2, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+            stmtVenta.setDouble(3, total);
+            stmtVenta.setString(4, metodoPago);
+            stmtVenta.setString(5, delivery);
+            stmtVenta.setString(6, nombreVendedor);
             stmtVenta.executeUpdate();
             ResultSet keys = stmtVenta.getGeneratedKeys();
             int idVenta = keys.next() ? keys.getInt(1) : 0;

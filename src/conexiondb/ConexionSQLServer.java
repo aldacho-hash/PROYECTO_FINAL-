@@ -199,8 +199,8 @@ public class ConexionSQLServer {
     } catch (SQLException e) { e.printStackTrace(); }
 }
 
-public static boolean verificarCodigo(String correo, String codigo) {
-    String query = "SELECT * FROM recuperacion_contrasena WHERE correo = ? AND codigo = ? " +
+    public static boolean verificarCodigo(String correo, String codigo) {
+        String query = "SELECT * FROM recuperacion_contrasena WHERE correo = ? AND codigo = ? " +
                    "AND fecha_expiracion > NOW() AND usado = 0";
     try (Connection conn = getConnection();
          PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -212,10 +212,10 @@ public static boolean verificarCodigo(String correo, String codigo) {
     return false;
 }
 
-public static void cambiarContrasena(String correo, String nuevaContrasena) {
-    String queryCliente = "UPDATE cliente SET contrasena = ? WHERE correo = ?";
-    String queryEmpleado = "UPDATE empleado SET contrasena = ? WHERE correo_electronico = ?";
-    String queryUsuarios = "UPDATE usuarios SET contrasena = ? WHERE email = ?";
+    public static void cambiarContrasena(String correo, String nuevaContrasena) {
+        String queryCliente = "UPDATE cliente SET contrasena = ? WHERE correo = ?";
+        String queryEmpleado = "UPDATE empleado SET contrasena = ? WHERE correo_electronico = ?";
+        String queryUsuarios = "UPDATE usuarios SET contrasena = ? WHERE email = ?";
     try (Connection conn = getConnection()) {
         PreparedStatement s1 = conn.prepareStatement(queryCliente);
         s1.setString(1, nuevaContrasena);
@@ -238,5 +238,72 @@ public static void cambiarContrasena(String correo, String nuevaContrasena) {
         s4.executeUpdate();
 
     } catch (SQLException e) { e.printStackTrace(); }
+}
+    public static void enviarComprobante(String correoDestino, String rutaPDF, String tipoComprobante, String numeroComprobante) {
+        String correoOrigen = "llantahulpa@gmail.com";
+        String contraseñaApp = "wwae jntj ywop vyrw";
+
+    Properties props = new Properties();
+    props.put("mail.smtp.auth", "true");
+    props.put("mail.smtp.starttls.enable", "true");
+    props.put("mail.smtp.host", "smtp.gmail.com");
+    props.put("mail.smtp.port", "587");
+    props.put("mail.smtp.ssl.trust", "smtp.gmail.com");
+    props.put("mail.smtp.ssl.protocols", "TLSv1.2");
+
+    Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+        protected PasswordAuthentication getPasswordAuthentication() {
+            return new PasswordAuthentication(correoOrigen, contraseñaApp);
+        }
+    });
+
+    try {
+        javax.mail.internet.MimeMessage message = new javax.mail.internet.MimeMessage(session);
+        message.setFrom(new javax.mail.internet.InternetAddress(correoOrigen));
+        message.setRecipients(Message.RecipientType.TO, javax.mail.internet.InternetAddress.parse(correoDestino));
+        message.setSubject(tipoComprobante + " N° " + numeroComprobante + " - Librería Fanny");
+
+        javax.mail.Multipart multipart = new javax.mail.internet.MimeMultipart();
+
+        // Cuerpo del correo
+        javax.mail.BodyPart cuerpo = new javax.mail.internet.MimeBodyPart();
+        cuerpo.setText("Estimado cliente,\n\nAdjuntamos su " + tipoComprobante + 
+            " N° " + numeroComprobante + " de su compra en Librería Fanny.\n\n¡Gracias por su preferencia!");
+        multipart.addBodyPart(cuerpo);
+
+        // Adjuntar PDF
+        javax.mail.BodyPart adjunto = new javax.mail.internet.MimeBodyPart();
+        javax.activation.DataSource source = new javax.activation.FileDataSource(rutaPDF);
+        adjunto.setDataHandler(new javax.activation.DataHandler(source));
+        adjunto.setFileName(tipoComprobante + "_" + numeroComprobante + ".pdf");
+        multipart.addBodyPart(adjunto);
+
+        message.setContent(multipart);
+        Transport.send(message);
+        System.out.println("Comprobante enviado a: " + correoDestino);
+    } catch (MessagingException e) {
+        e.printStackTrace();
+    }
+}
+
+    public static String obtenerCorreoCliente(String usuario) {
+        String query = "SELECT correo FROM cliente WHERE usuario = ?";
+    try (Connection conn = getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        stmt.setString(1, usuario);
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) return rs.getString("correo");
+    } catch (SQLException e) { e.printStackTrace(); }
+    return null;
+}
+
+    public static int obtenerSiguienteNumeroComprobante(String tipo) {
+        String query = "SELECT COUNT(*) + 1 AS numero FROM ventas WHERE metodo_pago IS NOT NULL";
+    try (Connection conn = getConnection();
+         PreparedStatement stmt = conn.prepareStatement(query)) {
+        ResultSet rs = stmt.executeQuery();
+        if (rs.next()) return rs.getInt("numero");
+    } catch (SQLException e) { e.printStackTrace(); }
+    return 1;
 }
 }

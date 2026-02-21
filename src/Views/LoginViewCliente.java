@@ -252,7 +252,7 @@ public boolean verificarCredenciales(String usuario, String contraseña, String 
     if (autenticado) {
         ConexionSQLServer.registrarLogin(usuario, "cliente");
         setVisible(false);
-        VentanaPrincipal ventanaPrincipal = new VentanaPrincipal(usuario);
+        VentanaPrincipal ventanaPrincipal = new VentanaPrincipal(usuario, "");
         ventanaPrincipal.setVisible(true);
     } else {
         ConexionSQLServer.registrarIntentoFallido(usuario);
