@@ -17,17 +17,17 @@ public class Sistema extends javax.swing.JFrame {
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(Sistema.class.getName());
     private VentanaPrincipal ventanaPrincipal;
        
-    public Sistema(String nombreEmpleado,String cargo) {
-    initComponents(); 
+    public Sistema(String nombreEmpleado, String cargo) {
+        initComponents(); 
 
-    String[] columnNamesEmpleados = {"ID", "Nombre", "DNI","Correo","Fecha de Nacimiento" ,"Dirección", "Teléfono"};
-    DefaultTableModel modelEmpleados = new DefaultTableModel(columnNamesEmpleados, 0);
-    tblEmpleados.setModel(modelEmpleados);  
-    
-    String[] columnNamesClientes = {"ID", "Nombre", "DNI","Correo", "Dirección", "Teléfono"};
-    DefaultTableModel modelClientes = new DefaultTableModel(columnNamesClientes, 0);
-    tblClientes.setModel(modelClientes); 
-    
+        String[] columnNamesEmpleados = {"ID", "Nombre", "DNI","Correo","Fecha de Nacimiento" ,"Dirección", "Teléfono"};
+        DefaultTableModel modelEmpleados = new DefaultTableModel(columnNamesEmpleados, 0);
+        tblEmpleados.setModel(modelEmpleados);  
+
+        String[] columnNamesClientes = {"ID", "Nombre", "DNI","Correo", "Dirección", "Teléfono"};
+        DefaultTableModel modelClientes = new DefaultTableModel(columnNamesClientes, 0);
+        tblClientes.setModel(modelClientes); 
+
         DefaultTableModel modelVentas = new DefaultTableModel();
         modelVentas.addColumn("CLIENTE");
         modelVentas.addColumn("PRODUCTO");
@@ -37,121 +37,169 @@ public class Sistema extends javax.swing.JFrame {
         modelVentas.addColumn("FECHA");
         modelVentas.addColumn("HORA");
         modelVentas.addColumn("VENDEDOR");
-
         tblHistorialVentas.setModel(modelVentas);
-    
-    this.nombreEmpleado = nombreEmpleado;
 
-    String nombreCliente = "x"; 
-    ventanaPrincipal = new VentanaPrincipal(nombreCliente, "");
-    btnBuscarCliente.addActionListener(e -> clientesRegistrados(txtBuscarCliente.getText().trim()));
-    btnBuscarEmpleado.addActionListener(e -> empleadosRegistrados(txtBuscarEmpleado.getText().trim()));
-    btnBuscarHistorialVentas.addActionListener(e -> filtrarVentas());
-    
-    txtFiltroVendedor = new javax.swing.JTextField();
-    txtFiltroVendedor.setToolTipText("Filtrar por vendedor");
-    txtFiltroVendedor.setColumns(10);
+        this.nombreEmpleado = nombreEmpleado;
 
-    txtFechaDesde = new javax.swing.JTextField("yyyy-MM-dd");
-    txtFechaDesde.setForeground(java.awt.Color.GRAY);
-    txtFechaDesde.setColumns(10);
-    txtFechaDesde.addFocusListener(new java.awt.event.FocusAdapter() 
-    {
-        
-    public void focusGained(java.awt.event.FocusEvent e) {
-        if (txtFechaDesde.getText().equals("yyyy-MM-dd")) txtFechaDesde.setText("");
-        txtFechaDesde.setForeground(java.awt.Color.BLACK);
-    }
-    public void focusLost(java.awt.event.FocusEvent e) {
-        if (txtFechaDesde.getText().isEmpty()) {
-            txtFechaDesde.setText("yyyy-MM-dd");
-            txtFechaDesde.setForeground(java.awt.Color.GRAY);
+        String nombreCliente = "x"; 
+        ventanaPrincipal = new VentanaPrincipal(nombreCliente, "");
+        btnBuscarCliente.addActionListener(e -> clientesRegistrados(txtBuscarCliente.getText().trim()));
+        btnBuscarEmpleado.addActionListener(e -> empleadosRegistrados(txtBuscarEmpleado.getText().trim()));
+        btnBuscarHistorialVentas.addActionListener(e -> filtrarVentas());
+
+        txtFiltroVendedor = new javax.swing.JTextField();
+        txtFiltroVendedor.setToolTipText("Filtrar por vendedor");
+        txtFiltroVendedor.setColumns(10);
+
+        txtFechaDesde = new javax.swing.JTextField("AAAA-MM-DD");
+        txtFechaDesde.setForeground(java.awt.Color.GRAY);
+        txtFechaDesde.setColumns(10);
+        txtFechaDesde.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (txtFechaDesde.getText().equals("AAAA-MM-DD")) txtFechaDesde.setText("");
+                txtFechaDesde.setForeground(java.awt.Color.BLACK);
             }
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (txtFechaDesde.getText().isEmpty()) {
+                    txtFechaDesde.setText("AAAA-MM-DD");
+                    txtFechaDesde.setForeground(java.awt.Color.GRAY);
+                }
+            }
+        });
+
+        txtFechaHasta = new javax.swing.JTextField("AAAA-MM-DD");
+        txtFechaHasta.setForeground(java.awt.Color.GRAY);
+        txtFechaHasta.setColumns(10);
+        txtFechaHasta.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if (txtFechaHasta.getText().equals("AAAA-MM-DD")) txtFechaHasta.setText("");
+                txtFechaHasta.setForeground(java.awt.Color.BLACK);
+            }
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (txtFechaHasta.getText().isEmpty()) {
+                    txtFechaHasta.setText("AAAA-MM-DD");
+                    txtFechaHasta.setForeground(java.awt.Color.GRAY);
+                }
+            }
+        });
+
+        // Agregar los campos al panel del historial
+        pnlHistorial.setLayout(null);
+        jScrollPane3.setBounds(0, 0, 911, 270);
+
+        // Labels en negrita tamaño 13
+        javax.swing.JLabel lblCliente  = new javax.swing.JLabel("Cliente:");
+        javax.swing.JLabel lblVendedor = new javax.swing.JLabel("Vendedor:");
+        javax.swing.JLabel lblDesde    = new javax.swing.JLabel("Desde:");
+        javax.swing.JLabel lblHasta    = new javax.swing.JLabel("Hasta:");
+
+        java.awt.Font labelFont = new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13);
+        lblCliente.setFont(labelFont);
+        lblVendedor.setFont(labelFont);
+        lblDesde.setFont(labelFont);
+        lblHasta.setFont(labelFont);
+
+        // Posiciones de las etiquetas
+        lblCliente.setBounds(55, 275, 80, 20);
+        lblVendedor.setBounds(225, 275, 90, 20);
+        lblDesde.setBounds(400, 275, 60, 20);
+        lblHasta.setBounds(535, 275, 60, 20);
+
+        // Posiciones de los campos
+        txtHistorialVentas.setBounds(10, 298, 150, 32);
+        txtFiltroVendedor.setBounds(180, 298, 160, 32);
+        txtFechaDesde.setBounds(360, 298, 120, 32);
+        txtFechaHasta.setBounds(495, 298, 120, 32);
+        btnBuscarHistorialVentas.setBounds(670, 298, 100, 32);
+
+        pnlHistorial.add(jScrollPane3);
+        pnlHistorial.add(lblCliente);
+        pnlHistorial.add(lblVendedor);
+        pnlHistorial.add(lblDesde);
+        pnlHistorial.add(lblHasta);
+        pnlHistorial.add(txtHistorialVentas);
+        pnlHistorial.add(btnBuscarHistorialVentas);
+        pnlHistorial.add(txtFiltroVendedor);
+        pnlHistorial.add(txtFechaDesde);
+        pnlHistorial.add(txtFechaHasta);
+
+        txtHistorialVentas.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e) {}
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e) {
+                if (txtHistorialVentas.getText().trim().isEmpty()) {
+                    cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
+                }
+            }
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e) {}
+        });
+
+        btnGestionProductos.addActionListener(e -> abrirGestionProductos());
+
+        // ── BLOQUE ADMINISTRADOR ──
+        if (cargo.equalsIgnoreCase("administrador")) {
+            btnGestionRoles = new javax.swing.JButton("Gestión de Roles");
+            btnGestionRoles.setFont(new java.awt.Font("Segoe UI", 1, 14));
+            btnGestionRoles.setBackground(new java.awt.Color(238, 238, 238));
+            btnGestionRoles.setForeground(new java.awt.Color(0, 0, 0));
+            btnGestionRoles.setOpaque(true);
+            btnGestionRoles.setFocusPainted(false);
+            btnGestionRoles.setBounds(290, 625, 180, 32);
+            jPanel1.add(btnGestionRoles);
+            jPanel1.setComponentZOrder(btnGestionRoles, 0);
+            btnGestionRoles.addActionListener(e -> {
+                GestionRoles gr = new GestionRoles();
+                gr.setVisible(true);
+            });
+            
+            javax.swing.JButton btnReportes = new javax.swing.JButton("📊 Reportes");
+            btnReportes.setFont(new java.awt.Font("Segoe UI", 1, 14));
+            btnReportes.setBackground(new java.awt.Color(238, 238, 238));
+            btnReportes.setForeground(new java.awt.Color(0, 0, 0));
+            btnReportes.setOpaque(true);
+            btnReportes.setFocusPainted(false);
+            btnReportes.setBounds(490, 625, 150, 32);
+            jPanel1.add(btnReportes);
+            jPanel1.setComponentZOrder(btnReportes, 0);
+            btnReportes.addActionListener(e -> {
+            VentanaReportes vr = new VentanaReportes();
+            vr.setVisible(true);
+            });
         }
-    });
 
-    txtFechaHasta = new javax.swing.JTextField("yyyy-MM-dd");
-    txtFechaHasta.setForeground(java.awt.Color.GRAY);
-    txtFechaHasta.setColumns(10);
-    txtFechaHasta.addFocusListener(new java.awt.event.FocusAdapter() {
-        public void focusGained(java.awt.event.FocusEvent e) {
-            if (txtFechaHasta.getText().equals("yyyy-MM-dd")) txtFechaHasta.setText("");
-            txtFechaHasta.setForeground(java.awt.Color.BLACK);
+        // ── BLOQUE LOGÍSTICA ── (separado e independiente del administrador)
+        String cargoNorm = cargo.toLowerCase()
+            .replace("á","a").replace("é","e").replace("í","i")
+            .replace("ó","o").replace("ú","u");
+
+        if (cargoNorm.equals("logistica")) {
+            javax.swing.JButton btnMercaderia = new javax.swing.JButton("? Ingreso Mercadería");
+            btnMercaderia.setFont(new java.awt.Font("Segoe UI", 1, 14));
+            btnMercaderia.setBackground(new java.awt.Color(238, 238, 238));
+            btnMercaderia.setForeground(new java.awt.Color(0, 0, 0));
+            btnMercaderia.setOpaque(true);
+            btnMercaderia.setFocusPainted(false);
+            btnMercaderia.setBounds(360, 625, 200, 32);
+            jPanel1.add(btnMercaderia);
+            jPanel1.setComponentZOrder(btnMercaderia, 0);
+            btnMercaderia.addActionListener(e -> {
+                VentanaIngresoMercaderia vim = new VentanaIngresoMercaderia();
+                vim.setVisible(true);
+            });
         }
-    public void focusLost(java.awt.event.FocusEvent e) {
-            if (txtFechaHasta.getText().isEmpty()) {
-                txtFechaHasta.setText("yyyy-MM-dd");
-                txtFechaHasta.setForeground(java.awt.Color.GRAY);
-        }
-    }
-});
 
-    // Agregar los campos al panel del historial
-    pnlHistorial.setLayout(null);
-    txtHistorialVentas.setBounds(10, 300, 160, 32);
-    btnBuscarHistorialVentas.setBounds(180, 300, 100, 32);
-    txtFiltroVendedor.setBounds(290, 300, 140, 32);
-    txtFechaDesde.setBounds(440, 300, 110, 32);
-    txtFechaHasta.setBounds(560, 300, 110, 32);
-    jScrollPane3.setBounds(0, 0, 911, 290);
-
-pnlHistorial.add(jScrollPane3);
-pnlHistorial.add(txtHistorialVentas);
-pnlHistorial.add(btnBuscarHistorialVentas);
-pnlHistorial.add(txtFiltroVendedor);
-pnlHistorial.add(txtFechaDesde);
-pnlHistorial.add(txtFechaHasta);
-
-    // Labels
-    javax.swing.JLabel lblVendedor = new javax.swing.JLabel("Vendedor:");
-    javax.swing.JLabel lblDesde = new javax.swing.JLabel("Desde:");
-    javax.swing.JLabel lblHasta = new javax.swing.JLabel("Hasta:");
-    lblVendedor.setBounds(290, 278, 80, 20);
-    lblDesde.setBounds(440, 278, 50, 20);
-    lblHasta.setBounds(560, 278, 50, 20);
-    pnlHistorial.add(lblVendedor);
-    pnlHistorial.add(lblDesde);
-    pnlHistorial.add(lblHasta);
-    
-    txtHistorialVentas.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
-    @Override
-    public void insertUpdate(javax.swing.event.DocumentEvent e) {}
-    @Override
-    public void removeUpdate(javax.swing.event.DocumentEvent e) {
-        if (txtHistorialVentas.getText().trim().isEmpty()) {
+        pnlPrincipal.addChangeListener(e -> {
             cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
-        }
+            cargarClientesEnTabla((DefaultTableModel) tblClientes.getModel());
+            cargarEmpleadosEnTabla((DefaultTableModel) tblEmpleados.getModel());
+        });
+
+        cargarEmpleadosEnTabla(modelEmpleados);
+        cargarClientesEnTabla(modelClientes);
+        cargarVentasEnTabla(modelVentas);  
     }
-    @Override
-    public void changedUpdate(javax.swing.event.DocumentEvent e) {}
-});
-    btnGestionProductos.addActionListener(e -> abrirGestionProductos());
-    if (cargo.equalsIgnoreCase("administrador")) {
-    btnGestionRoles = new javax.swing.JButton("Gestión de Roles");
-    btnGestionRoles.setFont(new java.awt.Font("Segoe UI", 1, 14));
-    btnGestionRoles.setBackground(new java.awt.Color(238, 238, 238));
-    btnGestionRoles.setForeground(new java.awt.Color(0, 0, 0));
-    btnGestionRoles.setOpaque(true);
-    btnGestionRoles.setFocusPainted(false);
-    btnGestionRoles.setBounds(380, 625, 180, 32);
-    jPanel1.add(btnGestionRoles);
-    jPanel1.setComponentZOrder(btnGestionRoles, 0);
-    btnGestionRoles.addActionListener(e -> {
-    GestionRoles gr = new GestionRoles();
-    gr.setVisible(true);
-    });
-}
-
-    pnlPrincipal.addChangeListener(e -> {
-    cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
-    cargarClientesEnTabla((DefaultTableModel) tblClientes.getModel());
-    cargarEmpleadosEnTabla((DefaultTableModel) tblEmpleados.getModel());
-});
-
-    cargarEmpleadosEnTabla(modelEmpleados);
-    cargarClientesEnTabla(modelClientes);
-    cargarVentasEnTabla(modelVentas);  
-}
     
     private void abrirGestionProductos() {
         VentanaGestionProductos ventanaGestion = new VentanaGestionProductos(ventanaPrincipal);
@@ -159,79 +207,80 @@ pnlHistorial.add(txtFechaHasta);
     }
     
     private void filtrarVentas() {
-    String textoBusqueda = txtHistorialVentas.getText().trim();
-    String vendedor = txtFiltroVendedor.getText().trim();
-    String fechaDesde = txtFechaDesde.getText().trim().equals("yyyy-MM-dd") ? "" : txtFechaDesde.getText().trim();
-    String fechaHasta = txtFechaHasta.getText().trim().equals("yyyy-MM-dd") ? "" : txtFechaHasta.getText().trim();
+        String textoBusqueda = txtHistorialVentas.getText().trim();
+        String vendedor = txtFiltroVendedor.getText().trim();
+        String fechaDesde = (txtFechaDesde.getText().trim().equals("yyyy-MM-dd") || txtFechaDesde.getText().trim().equals("AAAA-MM-DD")) ? "" : txtFechaDesde.getText().trim();
+        String fechaHasta = (txtFechaHasta.getText().trim().equals("yyyy-MM-dd") || txtFechaHasta.getText().trim().equals("AAAA-MM-DD")) ? "" : txtFechaHasta.getText().trim();
 
-    StringBuilder query = new StringBuilder(
-        "SELECT CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
-        "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
-        "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, v.vendedor " +
-        "FROM ventas v " +
-        "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
-        "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
-        "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
-        "WHERE 1=1 "
-    );
+        StringBuilder query = new StringBuilder(
+            "SELECT CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
+            "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
+            "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, v.vendedor " +
+            "FROM ventas v " +
+            "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+            "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
+            "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
+            "WHERE 1=1 "
+        );
 
-    if (!textoBusqueda.isEmpty())
-        query.append("AND (c.nombres LIKE ? OR c.apellidos LIKE ? OR p.nombre LIKE ?) ");
-    if (!vendedor.isEmpty())
-        query.append("AND v.vendedor LIKE ? ");
-    if (!fechaDesde.isEmpty())
-        query.append("AND DATE(v.fecha) >= ? ");
-    if (!fechaHasta.isEmpty())
-        query.append("AND DATE(v.fecha) <= ? ");
-
-    query.append("ORDER BY v.fecha DESC");
-
-    try (Connection conn = ConexionSQLServer.getConnection();
-         PreparedStatement ps = conn.prepareStatement(query.toString())) {
-
-        int idx = 1;
-        if (!textoBusqueda.isEmpty()) {
-            ps.setString(idx++, "%" + textoBusqueda + "%");
-            ps.setString(idx++, "%" + textoBusqueda + "%");
-            ps.setString(idx++, "%" + textoBusqueda + "%");
-        }
+        if (!textoBusqueda.isEmpty())
+            query.append("AND (c.nombres LIKE ? OR c.apellidos LIKE ? OR p.nombre LIKE ?) ");
         if (!vendedor.isEmpty())
-            ps.setString(idx++, "%" + vendedor + "%");
+            query.append("AND v.vendedor LIKE ? ");
         if (!fechaDesde.isEmpty())
-            ps.setString(idx++, fechaDesde);
+            query.append("AND DATE(v.fecha) >= ? ");
         if (!fechaHasta.isEmpty())
-            ps.setString(idx++, fechaHasta);
+            query.append("AND DATE(v.fecha) <= ? ");
 
-        DefaultTableModel model = (DefaultTableModel) tblHistorialVentas.getModel();
-        model.setRowCount(0);
-        ResultSet rs = ps.executeQuery();
+        query.append("ORDER BY v.fecha DESC");
 
-        boolean hayResultados = false;
-        while (rs.next()) {
-            hayResultados = true;
-            model.addRow(new Object[]{
-                rs.getString("cliente"),
-                rs.getString("producto"),
-                "S/. " + rs.getDouble("precio"),
-                rs.getInt("cantidad"),
-                rs.getDouble("subtotal"),
-                rs.getDate("fecha"),
-                rs.getTime("hora"),
-                rs.getString("vendedor")
-            });
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement ps = conn.prepareStatement(query.toString())) {
+
+            int idx = 1;
+            if (!textoBusqueda.isEmpty()) {
+                ps.setString(idx++, "%" + textoBusqueda + "%");
+                ps.setString(idx++, "%" + textoBusqueda + "%");
+                ps.setString(idx++, "%" + textoBusqueda + "%");
+            }
+            if (!vendedor.isEmpty())
+                ps.setString(idx++, "%" + vendedor + "%");
+            if (!fechaDesde.isEmpty())
+                ps.setString(idx++, fechaDesde);
+            if (!fechaHasta.isEmpty())
+                ps.setString(idx++, fechaHasta);
+
+            DefaultTableModel model = (DefaultTableModel) tblHistorialVentas.getModel();
+            model.setRowCount(0);
+            ResultSet rs = ps.executeQuery();
+
+            boolean hayResultados = false;
+            while (rs.next()) {
+                hayResultados = true;
+                model.addRow(new Object[]{
+                    rs.getString("cliente"),
+                    rs.getString("producto"),
+                    "S/. " + rs.getDouble("precio"),
+                    rs.getInt("cantidad"),
+                    rs.getDouble("subtotal"),
+                    rs.getDate("fecha"),
+                    rs.getTime("hora"),
+                    rs.getString("vendedor")
+                });
+            }
+            if (!hayResultados)
+                JOptionPane.showMessageDialog(this, "No se encontraron resultados.", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al filtrar ventas: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        if (!hayResultados)
-            JOptionPane.showMessageDialog(this, "No se encontraron resultados.", "Búsqueda", JOptionPane.INFORMATION_MESSAGE);
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al filtrar ventas: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
     }
-}
+
     private void buscarCliente(String nombreCliente) {
-    if (nombreCliente.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor ingrese el nombre del cliente.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
+        if (nombreCliente.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese el nombre del cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
                "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
@@ -250,197 +299,162 @@ pnlHistorial.add(txtFechaHasta);
             ResultSet rs = ps.executeQuery();
             DefaultTableModel modelVentas = (DefaultTableModel) tblHistorialVentas.getModel();
             modelVentas.setRowCount(0);
-        if (!rs.isBeforeFirst()) {
-            cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
-            JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
-            return;
+            if (!rs.isBeforeFirst()) {
+                cargarVentasEnTabla((DefaultTableModel) tblHistorialVentas.getModel());
+                JOptionPane.showMessageDialog(this, "No se encontraron resultados.");
+                return;
             }
-        while (rs.next()) {
-            String cliente = rs.getString("cliente");  
-            String producto = rs.getString("producto");
-            double precio = rs.getDouble("precio");
-            int cantidad = rs.getInt("cantidad");
-            double subtotal = rs.getDouble("subtotal");
-            Date fecha = rs.getDate("fecha");
-            Time hora = rs.getTime("hora");
-            String vendedor = rs.getString("vendedor");
-            modelVentas.addRow(new Object[]{cliente, producto, "S/. "+precio, cantidad, subtotal, fecha, hora, vendedor});
-        }
-        }  catch (SQLException e) {
+            while (rs.next()) {
+                String cliente = rs.getString("cliente");  
+                String producto = rs.getString("producto");
+                double precio = rs.getDouble("precio");
+                int cantidad = rs.getInt("cantidad");
+                double subtotal = rs.getDouble("subtotal");
+                Date fecha = rs.getDate("fecha");
+                Time hora = rs.getTime("hora");
+                String vendedor = rs.getString("vendedor");
+                modelVentas.addRow(new Object[]{cliente, producto, "S/. "+precio, cantidad, subtotal, fecha, hora, vendedor});
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error al buscar el cliente", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }    
     
     private void clientesRegistrados(String nombreCliente) {
-    if (nombreCliente.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor ingrese el nombre del cliente.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, direccion, telefono " +
-                   "FROM cliente " +
-                   "WHERE nombres LIKE ? OR apellidos LIKE ?"; 
-
-    try (Connection conn = ConexionSQLServer.getConnection(); 
-         PreparedStatement ps = conn.prepareStatement(query)) {
-
-        ps.setString(1, "%" + nombreCliente + "%");  
-        ps.setString(2, "%" + nombreCliente + "%"); 
-
-        ResultSet rs = ps.executeQuery();
-
-        DefaultTableModel modelClientes = (DefaultTableModel) tblClientes.getModel();
-        modelClientes.setRowCount(0);  
-
-      
-        while (rs.next()) {
-            int idCliente = rs.getInt("id_cliente");
-            String nombreCompleto = rs.getString("nombre_completo");
-            String dni = rs.getString("dni");
-            String correo = rs.getString("correo");
-            String direccion = rs.getString("direccion");
-            String telefono = rs.getString("telefono");
-
-            
-            modelClientes.addRow(new Object[]{idCliente, nombreCompleto, dni, correo, direccion, telefono});
+        if (nombreCliente.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese el nombre del cliente.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al buscar los clientes registrados", "Error", JOptionPane.ERROR_MESSAGE);
+        String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, direccion, telefono " +
+                       "FROM cliente " +
+                       "WHERE nombres LIKE ? OR apellidos LIKE ?"; 
+        try (Connection conn = ConexionSQLServer.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, "%" + nombreCliente + "%");  
+            ps.setString(2, "%" + nombreCliente + "%"); 
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel modelClientes = (DefaultTableModel) tblClientes.getModel();
+            modelClientes.setRowCount(0);  
+            while (rs.next()) {
+                int idCliente = rs.getInt("id_cliente");
+                String nombreCompleto = rs.getString("nombre_completo");
+                String dni = rs.getString("dni");
+                String correo = rs.getString("correo");
+                String direccion = rs.getString("direccion");
+                String telefono = rs.getString("telefono");
+                modelClientes.addRow(new Object[]{idCliente, nombreCompleto, dni, correo, direccion, telefono});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al buscar los clientes registrados", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
-}
     
     private void empleadosRegistrados(String nombreEmpleado) {
-    if (nombreEmpleado.isEmpty()) {
-        JOptionPane.showMessageDialog(this, "Por favor ingrese el nombre del empleado.", "Error", JOptionPane.ERROR_MESSAGE);
-        return;
-    }
-
-    String query = "SELECT empleado_id, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo_electronico,fecha_nacimiento, direccion, telefono " +
-                   "FROM empleado    " +
-                   "WHERE nombres LIKE ? OR apellidos LIKE ?";  
-
-    try (Connection conn = ConexionSQLServer.getConnection(); 
-         PreparedStatement ps = conn.prepareStatement(query)) {
-
-        ps.setString(1, "%" + nombreEmpleado + "%");  
-        ps.setString(2, "%" + nombreEmpleado + "%");  
-
-        ResultSet rs = ps.executeQuery();
-
-        DefaultTableModel modelEmpleados = (DefaultTableModel) tblEmpleados.getModel();
-        modelEmpleados.setRowCount(0); 
-
-       
-        while (rs.next()) {
-            int idEmpleado = rs.getInt("empleado_id");
-            String nombreCompleto = rs.getString("nombre_completo");
-            String dni = rs.getString("dni");
-            String correo = rs.getString("correo_electronico");
-            String fecha_nacimiento = rs.getString("fecha_nacimiento");
-            String direccion = rs.getString("direccion");
-            String telefono = rs.getString("telefono");
-
-          
-            modelEmpleados.addRow(new Object[]{idEmpleado, nombreCompleto, dni, correo,fecha_nacimiento, direccion, telefono});
+        if (nombreEmpleado.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor ingrese el nombre del empleado.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
-
-    } catch (SQLException e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error al buscar los empleados registrados", "Error", JOptionPane.ERROR_MESSAGE);
+        String query = "SELECT empleado_id, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo_electronico, fecha_nacimiento, direccion, telefono " +
+                       "FROM empleado " +
+                       "WHERE nombres LIKE ? OR apellidos LIKE ?";  
+        try (Connection conn = ConexionSQLServer.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, "%" + nombreEmpleado + "%");  
+            ps.setString(2, "%" + nombreEmpleado + "%");  
+            ResultSet rs = ps.executeQuery();
+            DefaultTableModel modelEmpleados = (DefaultTableModel) tblEmpleados.getModel();
+            modelEmpleados.setRowCount(0); 
+            while (rs.next()) {
+                int idEmpleado = rs.getInt("empleado_id");
+                String nombreCompleto = rs.getString("nombre_completo");
+                String dni = rs.getString("dni");
+                String correo = rs.getString("correo_electronico");
+                String fecha_nacimiento = rs.getString("fecha_nacimiento");
+                String direccion = rs.getString("direccion");
+                String telefono = rs.getString("telefono");
+                modelEmpleados.addRow(new Object[]{idEmpleado, nombreCompleto, dni, correo, fecha_nacimiento, direccion, telefono});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al buscar los empleados registrados", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
-}
-    
-    
     
     private void cargarEmpleadosEnTabla(DefaultTableModel tableModel) {
-    String query = "SELECT empleado_id, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo_electronico, fecha_nacimiento, direccion, telefono FROM empleado";
-    
-    try (Connection conn = ConexionSQLServer.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query);
-         ResultSet rs = stmt.executeQuery()) {
-
-        tableModel.setRowCount(0);
-
-        while (rs.next()) {
-            int idEmpleado = rs.getInt("empleado_id");
-            String nombre = rs.getString("nombre_completo");
-            String dni = rs.getString("dni");
-            String correo = rs.getString("correo_electronico");
-            String fecha_nacimiento = rs.getString("fecha_nacimiento");
-            String direccion = rs.getString("direccion");
-            String telefono = rs.getString("telefono");
-
-            tableModel.addRow(new Object[]{idEmpleado, nombre, dni, correo, fecha_nacimiento, direccion, telefono});
+        String query = "SELECT empleado_id, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo_electronico, fecha_nacimiento, direccion, telefono FROM empleado";
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            tableModel.setRowCount(0);
+            while (rs.next()) {
+                int idEmpleado = rs.getInt("empleado_id");
+                String nombre = rs.getString("nombre_completo");
+                String dni = rs.getString("dni");
+                String correo = rs.getString("correo_electronico");
+                String fecha_nacimiento = rs.getString("fecha_nacimiento");
+                String direccion = rs.getString("direccion");
+                String telefono = rs.getString("telefono");
+                tableModel.addRow(new Object[]{idEmpleado, nombre, dni, correo, fecha_nacimiento, direccion, telefono});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error al cargar los empleados: " + e.getMessage());
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        System.out.println("Error al cargar los empleados: " + e.getMessage());
     }
-}
    
-  private void cargarClientesEnTabla(DefaultTableModel tableModel) {
-    String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, direccion, telefono FROM cliente";
-    
-    try (Connection conn = ConexionSQLServer.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query);
-         ResultSet rs = stmt.executeQuery()) {
-
-        tableModel.setRowCount(0);
-
-        while (rs.next()) {
-            int idCliente = rs.getInt("id_cliente");
-            String nombreCompleto = rs.getString("nombre_completo"); 
-            String dni = rs.getString("dni");
-            String correo = rs.getString("correo");
-            String direccion = rs.getString("direccion");
-            String telefono = rs.getString("telefono");
-
-            tableModel.addRow(new Object[]{idCliente, nombreCompleto, dni, correo, direccion, telefono});
+    private void cargarClientesEnTabla(DefaultTableModel tableModel) {
+        String query = "SELECT id_cliente, CONCAT(nombres, ' ', apellidos) AS nombre_completo, dni, correo, direccion, telefono FROM cliente";
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {
+            tableModel.setRowCount(0);
+            while (rs.next()) {
+                int idCliente = rs.getInt("id_cliente");
+                String nombreCompleto = rs.getString("nombre_completo"); 
+                String dni = rs.getString("dni");
+                String correo = rs.getString("correo");
+                String direccion = rs.getString("direccion");
+                String telefono = rs.getString("telefono");
+                tableModel.addRow(new Object[]{idCliente, nombreCompleto, dni, correo, direccion, telefono});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error clientes: " + e.getMessage());
         }
-    } catch (SQLException e) {
-    e.printStackTrace();
-    JOptionPane.showMessageDialog(this, "Error clientes: " + e.getMessage());
-}
-}
-   
-private void cargarVentasEnTabla(DefaultTableModel tableModel) {
-    String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
-                   "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
-                   "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, " +
-                   "v.vendedor AS vendedor " +
-                   "FROM ventas v " +
-                   "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
-                   "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
-                   "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
-                   "ORDER BY v.fecha DESC";
-    try (Connection conn = ConexionSQLServer.getConnection();
-         PreparedStatement stmt = conn.prepareStatement(query);
-         ResultSet rs = stmt.executeQuery()) {  
-
-        tableModel.setRowCount(0);  
-
-        while (rs.next()) {
-            String cliente = rs.getString("cliente");  
-            String producto = rs.getString("producto");
-            double precio = rs.getDouble("precio");
-            int cantidad = rs.getInt("cantidad");
-            double subtotal = rs.getDouble("subtotal");
-            Date fecha = rs.getDate("fecha");
-            Time hora = rs.getTime("hora");
-            String vendedor = rs.getString("vendedor");
-            
-            tableModel.addRow(new Object[]{cliente, producto, "S/. "+precio, cantidad, subtotal, fecha, hora, vendedor});
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        System.out.println("Error al cargar el historial de ventas: " + e.getMessage());
     }
-}
-  
-       
+   
+    private void cargarVentasEnTabla(DefaultTableModel tableModel) {
+        String query = "SELECT v.id_venta, CONCAT(c.nombres, ' ', c.apellidos) AS cliente, " +
+                       "p.nombre AS producto, pv.precio, pv.cantidad, pv.subtotal, " +
+                       "DATE(v.fecha) AS fecha, TIME(v.fecha) AS hora, " +
+                       "v.vendedor AS vendedor " +
+                       "FROM ventas v " +
+                       "INNER JOIN cliente c ON v.id_cliente = c.id_cliente " +
+                       "INNER JOIN productos_vendidos pv ON v.id_venta = pv.id_venta " +
+                       "INNER JOIN producto p ON pv.id_producto = p.id_producto " +
+                       "ORDER BY v.fecha DESC";
+        try (Connection conn = ConexionSQLServer.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query);
+             ResultSet rs = stmt.executeQuery()) {  
+            tableModel.setRowCount(0);  
+            while (rs.next()) {
+                String cliente = rs.getString("cliente");  
+                String producto = rs.getString("producto");
+                double precio = rs.getDouble("precio");
+                int cantidad = rs.getInt("cantidad");
+                double subtotal = rs.getDouble("subtotal");
+                Date fecha = rs.getDate("fecha");
+                Time hora = rs.getTime("hora");
+                String vendedor = rs.getString("vendedor");
+                tableModel.addRow(new Object[]{cliente, producto, "S/. "+precio, cantidad, subtotal, fecha, hora, vendedor});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error al cargar el historial de ventas: " + e.getMessage());
+        }
+    }
     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -680,7 +694,7 @@ private void cargarVentasEnTabla(DefaultTableModel tableModel) {
                 .addComponent(btnGestionProductos)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnCerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 173, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(105, 105, 105))
+                .addGap(121, 121, 121))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

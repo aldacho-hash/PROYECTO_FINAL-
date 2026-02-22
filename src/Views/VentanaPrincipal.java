@@ -1011,6 +1011,28 @@ public class VentanaPrincipal extends JFrame {
             panelMenu.add(crearBotonCategoria(cat[0], cat[1]));
             panelMenu.add(Box.createVerticalStrut(8));
         }
+        
+        panelMenu.add(Box.createVerticalStrut(20));
+        JSeparator sep = new JSeparator();
+        sep.setMaximumSize(new Dimension(200, 2));
+        panelMenu.add(sep);
+        panelMenu.add(Box.createVerticalStrut(10));
+
+        JButton btnDevoluciones = new JButton("↩️ Devoluciones");
+        btnDevoluciones.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnDevoluciones.setAlignmentX(Component.LEFT_ALIGNMENT);
+        btnDevoluciones.setMaximumSize(new Dimension(200, 40));
+        btnDevoluciones.setBackground(new Color(200, 50, 50));
+        btnDevoluciones.setForeground(Color.WHITE);
+        btnDevoluciones.setHorizontalAlignment(SwingConstants.LEFT);
+        btnDevoluciones.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        btnDevoluciones.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnDevoluciones.setFocusPainted(false);
+        btnDevoluciones.addActionListener(e -> {
+        VentanaDevoluciones vd = new VentanaDevoluciones(nombreVendedor);
+        vd.setVisible(true);
+});
+panelMenu.add(btnDevoluciones);
         add(panelMenu, BorderLayout.WEST);
     }
 
