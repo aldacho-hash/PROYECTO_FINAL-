@@ -15,7 +15,7 @@ import javax.mail.internet.MimeMessage;
 
 public class ConexionSQLServer {
     
-    private static final String URL = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=America/Lima";
+    private static final String URL = "jdbc:mysql://localhost:3306/LibreriaFanny?useSSL=false&serverTimezone=America/Lima&allowPublicKeyRetrieval=true";
     private static final String USER = "root";
     private static final String PASSWORD = "carranza15";
     
